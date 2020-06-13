@@ -1,8 +1,11 @@
 function init(){
     "use strict";
 
-    function updateView(force=false) {
-        view.render(model, force);
+    model.init();
+    view.init();
+
+    function updateView() {
+        view.render(model);
     }
     function animateView(){
         updateView();
@@ -10,9 +13,7 @@ function init(){
     }
 
     window.requestAnimationFrame(animateView);
-    window.onresize = () => {
-        updateView(true);
-    }
 
 }
+rnd = randomFromSeed(Date.now());
 init();
