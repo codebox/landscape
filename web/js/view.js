@@ -16,9 +16,9 @@ const view = (() => {
 
     function renderLatestData() {
         clearCanvas();
-        const s=10;
+        const s=2;
         latestData.forEachSet((v,x,y) => {
-            ctx.fillStyle=`hsla(0, 0%, 0%, ${rnd()})`;
+            ctx.fillStyle=`hsla(0, 0%, 0%, ${v})`;
             ctx.fillRect(x*s,y*s,s,s);
         });
     }
@@ -27,11 +27,8 @@ const view = (() => {
             updateCanvasSize();
         },
         render(model) {
-            const data = model.getLatest();
-            if (data) {
-                latestData = data;
-                renderLatestData();
-            }
+            latestData = model;
+            renderLatestData();
         }
     };
 

@@ -1,7 +1,7 @@
 function init(){
     "use strict";
 
-    model.init();
+    const model = terrainGenerator.generateModel(2,100);
     view.init();
 
     function updateView() {
