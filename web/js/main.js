@@ -2,11 +2,9 @@ function init(seed){
     "use strict";
 
     const RENDER_SCALE = 1,
-        MODEL_WIDTH = 1000,
-        MODEL_HEIGHT = 1000,
-        ZOOM_LEVEL = 7,
+        MODEL_SIZE = 1000,
         rnd = randomFromSeed(seed),
-        model = buildModel(rnd, MODEL_WIDTH, MODEL_HEIGHT, ZOOM_LEVEL),
+        model = buildModel(rnd, MODEL_SIZE),
         view = buildView(RENDER_SCALE);
 
     model.init();

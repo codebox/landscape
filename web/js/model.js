@@ -1,14 +1,15 @@
-function buildModel(rnd, gridWidth, gridHeight, scale) {
+function buildModel(rnd, gridSize) {
     "use strict";
     let elevationGrid;
 
     function initElevationGrid() {
-        const perlin2d = buildPerlin(rnd, scale, scale);
+        const levels = 6, weightDecay = 3,
+            perlin2d = buildPerlinEnsemble(rnd, gridSize, levels, weightDecay);
         elevationGrid = [];
-        for (let y=0; y<gridHeight; y++) {
+        for (let y=0; y<gridSize; y++) {
             elevationGrid[y] = [];
-            for (let x=0; x<gridWidth; x++) {
-                elevationGrid[y][x] = perlin2d(scale * x / gridWidth, scale * y / gridHeight);
+            for (let x=0; x<gridSize; x++) {
+                elevationGrid[y][x] = perlin2d(x / gridSize, y / gridSize);
             }
         }
     }
@@ -21,16 +22,16 @@ function buildModel(rnd, gridWidth, gridHeight, scale) {
         getElevationGrid() {
             return {
                 forEach(fn) {
-                    for (let y=0; y<gridHeight; y++) {
-                        for (let x=0; x<gridWidth; x++) {
+                    for (let y=0; y<gridSize; y++) {
+                        for (let x=0; x<gridSize; x++) {
                             fn(x, y, elevationGrid[y][x]);
                         }
                     }
                 }
             }
         },
-        gridWidth,
-        gridHeight
+        gridWidth : gridSize,
+        gridHeight : gridSize
     };
     return model;
 }

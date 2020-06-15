@@ -65,11 +65,12 @@ function buildPerlin(rnd, width, height) {
              |    |
             p01--p11
          */
-        const xFloor = Math.floor(x),
-            xOffset = x - xFloor,
+        console.assert(x >= 0 && x <= 1 && y >= 0 && y <= 1, `x=${x} y=${y} height=${height} width=${width}`);
+        const xFloor = Math.floor(x * width),
+            xOffset = x * width- xFloor,
             xOffsetEased = ease(xOffset),
-            yFloor = Math.floor(y),
-            yOffset = y - yFloor,
+            yFloor = Math.floor(y * height),
+            yOffset = y * height - yFloor,
             yOffsetEased = ease(yOffset),
 
             xy = buildVector(xOffset, yOffset, 0, 0),
@@ -91,4 +92,21 @@ function buildPerlin(rnd, width, height) {
 
         return average(dp_p00, dp_p10, dp_p01, dp_p11, xOffsetEased, yOffsetEased);
     };
+}
+function buildPerlinEnsemble(rnd, size, levels, weightDecay) {
+    const zoomBase = Math.pow(size, 1/(levels-1)),
+        noiseParams = new Array(levels).fill().map((_,i) => {
+        "use strict";
+        return {
+            weight: Math.pow(weightDecay, -i),
+            zoom: Math.pow(zoomBase, i)
+        }
+    });
+
+    const weightTotal = [...noiseParams].reduce((a,c) => a + c.weight, 0),
+        fns = [...noiseParams].map(p => {
+            const perlin = buildPerlin(rnd, p.zoom, p.zoom);
+            return (x,y) => p.weight * perlin(x, y) / weightTotal;
+        });
+    return (x,y) => fns.reduce((v, fn) => v + fn(x,y), 0);
 }

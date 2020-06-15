@@ -11,9 +11,9 @@ function buildView(scale) {
     }
 
     const getElevationColour = (() => {
-        const SEA_LEVEL = 0,
-            getSeaLightness = buildRangeShifter(-1, 0, 0, 50),
-            getGroundLightness = buildRangeShifter(0, 1, 20, 80);
+        const SEA_LEVEL = -0.05,
+            getSeaLightness = buildRangeShifter(-1, SEA_LEVEL, 0, 50),
+            getGroundLightness = buildRangeShifter(SEA_LEVEL, 1, 20, 80);
 
         return (elevation) => {
             console.assert(elevation >= -1 && elevation <= 1);
