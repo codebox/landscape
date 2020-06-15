@@ -3,12 +3,13 @@ function buildModel(rnd, gridWidth, gridHeight) {
     let elevationGrid;
 
     function initElevationGrid() {
-        const perlin2d = buildPerlin(rnd, 1, 1);
+        const scale = 5,
+            perlin2d = buildPerlin(rnd, scale, scale);
         elevationGrid = [];
         for (let y=0; y<gridHeight; y++) {
             elevationGrid[y] = [];
             for (let x=0; x<gridWidth; x++) {
-                elevationGrid[y][x] = perlin2d(x / gridWidth, y / gridHeight);
+                elevationGrid[y][x] = perlin2d(scale * x / gridWidth, scale * y / gridHeight);
             }
         }
     }
