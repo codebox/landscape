@@ -1,21 +1,27 @@
-function init(seed){
+function init(){
     "use strict";
-
     const RENDER_SCALE = 1,
-        MODEL_SIZE = 1000,
-        rnd = randomFromSeed(seed),
-        model = buildModel(rnd, MODEL_SIZE),
-        view = buildView(RENDER_SCALE);
+        MODEL_SIZE = 1000;
 
-    model.init();
-    view.init();
+    let rnd, model, view = buildView(RENDER_SCALE);
 
     function renderModel() {
         view.render(model);
     }
 
-    window.onresize = renderModel;
-    renderModel();
+    view.onGoClick(() => {
+        const seed = Number(view.getSeed()) || Date.now();
+        view.setSeed(seed);
+
+        rnd = randomFromSeed(seed);
+        model = buildModel(rnd, MODEL_SIZE);
+
+        model.init();
+        view.init();
+
+        window.onresize = renderModel;
+        renderModel();
+    });
 };
 
-init(Date.now());
+init();

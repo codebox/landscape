@@ -15,6 +15,7 @@ function buildCanvas(elCanvas, width, height) {
             ctx.fillRect(x, y, w, h);
         }
     };
+    canvas.clear();
 
     return canvas;
 }

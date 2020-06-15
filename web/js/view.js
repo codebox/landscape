@@ -1,6 +1,8 @@
 function buildView(scale) {
     "use strict";
-    const elCanvas = document.getElementById('canvas');
+    const elCanvas = document.getElementById('canvas'),
+        elGoButton = document.getElementById('go'),
+        elSeed = document.getElementById('seed');
     let canvas;
 
     function buildRangeShifter(minIn, maxIn, minOut, maxOut) {
@@ -13,7 +15,7 @@ function buildView(scale) {
     const getElevationColour = (() => {
         const SEA_LEVEL = -0.05,
             getSeaLightness = buildRangeShifter(-1, SEA_LEVEL, 0, 50),
-            getGroundLightness = buildRangeShifter(SEA_LEVEL, 1, 20, 80);
+            getGroundLightness = buildRangeShifter(SEA_LEVEL, 1, 20, 100);
 
         return (elevation) => {
             console.assert(elevation >= -1 && elevation <= 1);
@@ -38,6 +40,15 @@ function buildView(scale) {
     const view = {
         init() {
 
+        },
+        onGoClick(handler) {
+            elGoButton.onclick = handler;
+        },
+        getSeed() {
+            return elSeed.value;
+        },
+        setSeed(seed) {
+            elSeed.value = seed;
         },
         render(model) {
             canvas = buildCanvas(elCanvas, scale * model.gridWidth, scale * model.gridHeight);
