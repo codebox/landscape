@@ -1,12 +1,32 @@
-function buildView() {
+function buildView(scale) {
     "use strict";
+    const elCanvas = document.getElementById('canvas');
+    let canvas;
+
+    function getElevationColour(elevation) {
+        console.assert(elevation >= 0 && elevation <= 1);
+        return `rgba(0,0,0,${elevation})`;
+    }
+
+    function drawElevationSquare(x, y, v) {
+        canvas.drawRectangle(x * scale, y * scale, scale, scale, getElevationColour(v));
+    }
+
+    function renderElevation(grid) {
+        grid.forEach((x,y,v) => {
+            drawElevationSquare(x,y,v); 
+        });
+    }
+
     const view = {
-        init(){
+        init() {
 
         },
         render(model) {
-
+            canvas = buildCanvas(elCanvas, scale * model.gridWidth, scale * model.gridHeight);
+            renderElevation(model.getElevationGrid());
         }
     };
+
     return view;
 }
