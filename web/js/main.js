@@ -11,6 +11,12 @@ function init(seed){
     model.init();
     view.init();
 
-    view.render(model);
+    function renderModel() {
+        view.render(model);
+    }
+
+    window.onresize = renderModel;
+    renderModel();
 };
+
 init(Date.now());
