@@ -4,8 +4,8 @@ function buildView(scale) {
     let canvas;
 
     function getElevationColour(elevation) {
-        // console.assert(elevation >= 0 && elevation <= 1);
-        return `rgba(0,0,0,${elevation})`;
+        console.assert(elevation >= -1 && elevation <= 1);
+        return `rgba(0,0,0,${0.5 + elevation/2})`;
     }
 
     function drawElevationSquare(x, y, v) {

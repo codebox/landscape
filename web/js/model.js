@@ -1,10 +1,9 @@
-function buildModel(rnd, gridWidth, gridHeight) {
+function buildModel(rnd, gridWidth, gridHeight, scale) {
     "use strict";
     let elevationGrid;
 
     function initElevationGrid() {
-        const scale = 5,
-            perlin2d = buildPerlin(rnd, scale, scale);
+        const perlin2d = buildPerlin(rnd, scale, scale);
         elevationGrid = [];
         for (let y=0; y<gridHeight; y++) {
             elevationGrid[y] = [];
