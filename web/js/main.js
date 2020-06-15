@@ -1,7 +1,7 @@
 function init(seed){
     "use strict";
 
-    const RENDER_SCALE = 1,
+    const RENDER_SCALE = 5,
         MODEL_WIDTH = 100,
         MODEL_HEIGHT = 100,
         rnd = randomFromSeed(seed),
