@@ -1,19 +1,13 @@
-function init(){
+function init(seed){
     "use strict";
+
+    const rnd = randomFromSeed(seed),
+        model = buildModel(rnd),
+        view = buildView();
 
     model.init();
     view.init();
 
-    function updateView() {
-        view.render(model);
-    }
-    function animateView(){
-        updateView();
-        window.requestAnimationFrame(animateView);
-    }
-
-    window.requestAnimationFrame(animateView);
-
-}
-rnd = randomFromSeed(Date.now());
-init();
+    view.render(model);
+};
+init(Date.now());
