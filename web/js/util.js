@@ -13,3 +13,82 @@ function randomFromSeed(seed) {
         return mulberry32() * (max - min) + min;
     }
 }
+
+function buildPerlin(rnd, width, height) {
+    "use strict";
+
+    function interpolate(a, b, x) {
+        return a + x * (b - a);
+    }
+
+    function ease(x) {
+        return x * x * (3 - 2 * x);
+    }
+
+    function buildVector(x, y, gx, gy) {
+        return {
+            x, y, gx, gy,
+            vectorTo(other) {
+                return buildVector(x, y, other.x - x, other.y - y);
+            },
+            dot(other) {
+                return gx * other.gx + gy * other.gy;
+            }
+        };
+    }
+
+    function buildVectorFromGradients(x, y, gradients) {
+        return buildVector(x, y, gradients.gx, gradients.gy);
+    }
+
+    function average(dp_p00, dp_p10, dp_p01, dp_p11, x, y) {
+        return interpolate(
+            interpolate(dp_p00, dp_p10, x),
+            interpolate(dp_p01, dp_p11, x),
+            y
+        );
+    }
+
+    const unitVectorGradients = [];
+    for (let y=0; y<height + 1; y++) {
+        unitVectorGradients[y] = [];
+        for (let x=0; x<width + 1; x++) {
+            const angle = rnd() * Math.PI * 2;
+            unitVectorGradients[y][x] = {gx: Math.sin(angle), gy: Math.cos(angle)};
+        }
+    }
+
+
+    return (x,y) => {
+        /*
+            p00--p10
+             |    |
+            p01--p11
+         */
+        const xFloor = Math.floor(x),
+            xOffset = x - xFloor,
+            xOffsetEased = ease(xOffset),
+            yFloor = Math.floor(y),
+            yOffset = y - yFloor,
+            yOffsetEased = ease(yOffset),
+
+            xy = buildVector(xOffset, yOffset, 0, 0),
+
+            p00 = buildVectorFromGradients(0, 0, unitVectorGradients[yFloor][xFloor]),
+            p10 = buildVectorFromGradients(1, 0, unitVectorGradients[yFloor][xFloor + 1]),
+            p01 = buildVectorFromGradients(0, 1, unitVectorGradients[yFloor + 1][xFloor]),
+            p11 = buildVectorFromGradients(1, 1, unitVectorGradients[yFloor + 1][xFloor + 1]),
+
+            p00_xy = p00.vectorTo(xy),
+            p10_xy = p10.vectorTo(xy),
+            p01_xy = p01.vectorTo(xy),
+            p11_xy = p11.vectorTo(xy),
+
+            dp_p00 = p00_xy.dot(p00),
+            dp_p10 = p10_xy.dot(p10),
+            dp_p01 = p01_xy.dot(p01),
+            dp_p11 = p11_xy.dot(p11);
+
+        return average(dp_p00, dp_p10, dp_p01, dp_p11, xOffsetEased, yOffsetEased);
+    };
+}
