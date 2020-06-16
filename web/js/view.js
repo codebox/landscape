@@ -13,7 +13,7 @@ function buildView(scale) {
     }
 
     const getElevationColour = (() => {
-        const SEA_LEVEL = -0.05,
+        const SEA_LEVEL = -0.1,
             getSeaLightness = buildRangeShifter(-1, SEA_LEVEL, 0, 50),
             getGroundLightness = buildRangeShifter(SEA_LEVEL, 1, 20, 100);
 
@@ -35,6 +35,13 @@ function buildView(scale) {
         grid.forEach((x,y,v) => {
             drawElevationSquare(x,y,v); 
         });
+
+    }
+
+    function renderDropletPaths(dropPaths) {
+        dropPaths.forEach(p => {
+            canvas.drawRectangle(p.x * scale, p.y * scale, scale, scale, 'red');
+        })
     }
 
     const view = {
@@ -43,6 +50,14 @@ function buildView(scale) {
         },
         onGoClick(handler) {
             elGoButton.onclick = handler;
+        },
+        onErode(handler) {
+            elCanvas.onclick = event => {
+                const rect = elCanvas.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                handler({x,y});
+            }
         },
         getSeed() {
             return elSeed.value;
@@ -53,6 +68,7 @@ function buildView(scale) {
         render(model) {
             canvas = buildCanvas(elCanvas, scale * model.gridWidth, scale * model.gridHeight);
             renderElevation(model.getElevationGrid());
+            renderDropletPaths(model.getDropPaths());
         }
     };
 
