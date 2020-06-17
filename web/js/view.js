@@ -68,7 +68,7 @@ function buildView(scale) {
         render(model) {
             canvas = buildCanvas(elCanvas, scale * model.gridWidth, scale * model.gridHeight);
             renderElevation(model.getElevationGrid());
-            renderDropletPaths(model.getDropPaths());
+            //renderDropletPaths(model.getDropPaths());
         }
     };
 

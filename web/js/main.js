@@ -15,21 +15,17 @@ function init(){
 
         rnd = randomFromSeed(seed);
         model = buildModel(rnd, MODEL_SIZE);
+        const eroder = buildEroder(model);
 
         model.init();
         view.init();
 
+        for (let i=0; i<100; i++) {
+            eroder.erode();
+        }
         window.onresize = renderModel;
         renderModel();
 
-        setTimeout(() => {
-            let c=0, perBatch = 100;
-            while(c<100){
-                model.erode(perBatch);
-                console.log(++c * perBatch);
-            }
-            renderModel();
-        }, 0)
     });
 
     view.onErode(p => {
