@@ -15,7 +15,7 @@ function init(){
 
         rnd = randomFromSeed(seed);
         model = buildModel(rnd, MODEL_SIZE);
-        const eroder = buildEroder(model);
+        const eroder = buildEroder(rnd, model);
 
         model.init();
         view.init();

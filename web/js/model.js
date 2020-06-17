@@ -14,18 +14,31 @@ function buildModel(rnd, gridSize) {
         }
     }
 
+    function assertGridCoords(x,y) {
+        console.assert(Math.floor(x) === x && Math.floor(y) === y && x >= 0 && x < gridSize && y >= 0 && y < gridSize, `x: ${x} y: ${y}`);
+    }
+
     const model = {
         init() {
             initElevationGrid();
         },
+
         getElevationGrid() {
             return {
                 forEach(fn) {
                     for (let y=0; y<gridSize; y++) {
                         for (let x=0; x<gridSize; x++) {
-                            fn(x, y, elevationGrid[y][x]);
+                            fn(x, y, this.get(x, y));
                         }
                     }
+                },
+                get(x, y) {
+                    assertGridCoords(x, y);
+                    return elevationGrid[y][x]
+                },
+                set(x, y, val) {
+                    assertGridCoords(x, y);
+                    elevationGrid[y][x] = val;
                 }
             }
         },
