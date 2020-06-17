@@ -1,7 +1,8 @@
 function init(){
     "use strict";
     const RENDER_SCALE = 1,
-        MODEL_SIZE = 400;
+        MODEL_SIZE = 400,
+        DEBUG = false;
 
     let rnd, model, view = buildView(RENDER_SCALE);
 
@@ -34,7 +35,7 @@ function init(){
     window.onresize = renderModel;
 
     view.onGoClick(() => {
-        if (debug){
+        if (DEBUG){
             renderModel();
             for (let i=0; i<100; i++) {
                 const path = eroder.erode();
