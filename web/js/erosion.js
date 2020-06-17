@@ -13,7 +13,8 @@ function buildEroder(rnd, model) {
             erosion: 0.9,
             gravity: 20,
             evaporation: 0.001,
-            maxSteps: 10000
+            maxSteps: 10000,
+            erosionRadius: 3
         };
 
     function getGradientForPosition(x,y) {
@@ -85,7 +86,6 @@ function buildEroder(rnd, model) {
             oldElevation = grid.get(xPos, yPos),
             newElevation = oldElevation + change;
         grid.set(xPos, yPos, newElevation);
-        // console.log(newElevation - oldElevation);
     }
 
     function updateSpeed(drop, heightDecrease) {
@@ -102,7 +102,10 @@ function buildEroder(rnd, model) {
     }
 
     function depositSediment(drop, deposit) {
-        updateElevation(drop.prevX, drop.prevY, deposit);
+        updateElevation(drop.prevX, drop.prevY, deposit/4);
+        updateElevation(drop.prevX+1, drop.prevY, deposit/4);
+        updateElevation(drop.prevX, drop.prevY+1, deposit/4);
+        updateElevation(drop.prevX+1, drop.prevY+1, deposit/4);
         drop.sediment -= deposit;
         console.assert(drop.sediment >= 0);
     }
@@ -111,18 +114,18 @@ function buildEroder(rnd, model) {
         if (!erosionTotal) {
             return;
         }
-        const EROSION_RADIUS = 2,
-            startX = Math.max(0, drop.prevX - EROSION_RADIUS),
-            endX = Math.min(model.gridWidth - 1, drop.prevX + EROSION_RADIUS),
-            startY = Math.max(0, drop.prevY - EROSION_RADIUS),
-            endY = Math.min(model.gridHeight - 1, drop.prevY + EROSION_RADIUS),
+        const startX = Math.max(0, drop.prevX - params.erosionRadius),
+            endX = Math.min(model.gridWidth - 1, drop.prevX + params.erosionRadius),
+            startY = Math.max(0, drop.prevY - params.erosionRadius),
+            endY = Math.min(model.gridHeight - 1, drop.prevY + params.erosionRadius),
             erosionAmounts = [];
 
         for (let x=startX; x<=endX; x++) {
             for (let y=startY; y<=endY; y++) {
                 const xDiff = x - drop.prevX,
-                    yDiff = y - drop.prevY;
-                erosionAmounts.push({x, y, amount: Math.sqrt(xDiff*xDiff + yDiff*yDiff)});
+                    yDiff = y - drop.prevY,
+                    amount = 1 / (Math.sqrt(xDiff*xDiff + yDiff*yDiff) + 1);
+                erosionAmounts.push({x, y, amount});
             }
         }
         const total = erosionAmounts.reduce((a,c) => a + c.amount, 0);
@@ -139,7 +142,7 @@ function buildEroder(rnd, model) {
             const drop = buildDroplet(), path = [];
             let step = 0;
 
-            while(step++ < params.maxSteps) {
+            while(step++ > params.maxSteps) {
                 path.push({x: drop.x, y: drop.y});
                 const gradient = getGradientForPosition(drop.x, drop.y);
 
@@ -149,6 +152,10 @@ function buildEroder(rnd, model) {
                 if (!dropIsOnMap(drop)) {
                     console.log('drop left the map')
                     break;
+                }
+                if (drop.water < 0.01) {
+                    console.log('evaporated')
+                    break
                 }
 
                 const heightDecrease = getHeightForPosition(drop.prevX, drop.prevY) - getHeightForPosition(drop.x, drop.y);
@@ -170,6 +177,7 @@ function buildEroder(rnd, model) {
                     if (drop.sediment <= -heightDecrease) {
                         // not enough sediment to fill pit
                         depositSediment(drop, drop.sediment);
+                        console.log('pit')
                         break;
 
                     } else {
