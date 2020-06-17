@@ -39,8 +39,8 @@ function buildView(scale) {
     }
 
     function renderDropletPaths(dropPaths) {
-        dropPaths.forEach(p => {
-            canvas.drawRectangle(p.x * scale, p.y * scale, scale, scale, 'red');
+        dropPaths.forEach((p,i) => {
+            canvas.drawRectangle(p.x * scale, p.y * scale, scale, scale, i ? 'red' : 'white');
         })
     }
 
@@ -69,6 +69,11 @@ function buildView(scale) {
             canvas = buildCanvas(elCanvas, scale * model.gridWidth, scale * model.gridHeight);
             renderElevation(model.getElevationGrid());
             //renderDropletPaths(model.getDropPaths());
+        },
+        renderPath(path) {
+            path.forEach((p,i) => {
+                canvas.drawRectangle(p.x * scale, p.y * scale, scale, scale, i ?'red':'white')
+            })
         }
     };
 

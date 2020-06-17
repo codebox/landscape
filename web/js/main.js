@@ -10,7 +10,7 @@ function init(){
     }
 
     view.onGoClick(() => {
-        const seed = Number(view.getSeed()) || Date.now();
+        const seed = 1592400515569;//Number(view.getSeed()) || Date.now();
         view.setSeed(seed);
 
         rnd = randomFromSeed(seed);
@@ -20,11 +20,21 @@ function init(){
         model.init();
         view.init();
 
-        for (let i=0; i<100; i++) {
-            eroder.erode();
-        }
         window.onresize = renderModel;
-        renderModel();
+        // renderModel();
+
+        function doErosion(){
+            setTimeout(() => {
+                renderModel();
+                for (let i=0; i<100; i++) {
+                    const path = eroder.erode();
+                    view.renderPath(path);
+                    // console.log(i)
+                }
+                doErosion();
+            }, 0)
+        }
+        doErosion()
 
     });
 

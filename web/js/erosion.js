@@ -1,14 +1,16 @@
 function buildEroder(rnd, model) {
     "use strict";
 
+    // Algorithm from https://www.firespark.de/resources/downloads/implementation%20of%20a%20methode%20for%20hydraulic%20erosion.pdf
+
     const grid = model.getElevationGrid(),
         params = {
-            inertia: 0.5,
-            minSlope: 0.1,
-            capacity: 0.01,
-            deposition: 0.5,
-            erosion: 0.5,
-            gravity: 1,
+            inertia: 0.01,
+            minSlope: 0.0001,
+            capacity: 0.1,
+            deposition: 0.4,
+            erosion: 0.4,
+            gravity: 5,
             evaporation: 0.01,
             maxSteps: 100
         };
@@ -49,8 +51,8 @@ function buildEroder(rnd, model) {
 
     function buildDroplet() {
         return {
-            x: rnd() * model.gridWidth,
-            y: rnd() * model.gridHeight,
+            x: 25,//rnd() * (model.gridWidth - 1),
+            y: 66,//rnd() * (model.gridHeight - 1),
             dx: 0,
             dy: 0,
             speed: 0,
@@ -72,7 +74,6 @@ function buildEroder(rnd, model) {
     function updatePosition(drop) {
         drop.prevX = drop.x;
         drop.prevY = drop.y;
-        drop.prevHeight = drop.height;
         drop.x += drop.dx;
         drop.y += drop.dy;
     }
@@ -83,10 +84,12 @@ function buildEroder(rnd, model) {
             oldElevation = grid.get(xPos, yPos),
             newElevation = oldElevation + change;
         grid.set(xPos, yPos, newElevation);
+        // console.log(newElevation - oldElevation);
     }
 
     function updateSpeed(drop, heightDecrease) {
-        drop.speed = Math.sqrt(drop.speed * drop.speed + heightDecrease * params.gravity);
+        const speed = Math.sqrt(Math.max(0, drop.speed * drop.speed + heightDecrease * params.gravity));
+        drop.speed = speed;
     }
 
     function updateWater(drop) {
@@ -94,19 +97,30 @@ function buildEroder(rnd, model) {
     }
 
     function dropIsOnMap(drop) {
-        return drop.x >= 0 && drop.x < model.gridWidth && drop.y >= 0 && drop.y < model.gridHeight;
+        return drop.x >= 0 && drop.x < (model.gridWidth - 1) && drop.y >= 0 && drop.y < (model.gridHeight - 1);
+    }
+
+    function depositSediment(drop, deposit) {
+        updateElevation(drop.prevX, drop.prevY, deposit);
+        drop.sediment -= deposit;
     }
 
     const eroder = {
         erode() {
-            const drop = buildDroplet();
+            const drop = buildDroplet(), path = [];
             let step = 0;
 
-            while(dropIsOnMap(drop) && step < params.maxSteps) {
+            while(step++ < params.maxSteps) {
+                path.push({x: drop.x, y: drop.y});
                 const gradient = getGradientForPosition(drop.x, drop.y);
 
                 updateDirectionOfMovement(drop, gradient);
                 updatePosition(drop);
+
+                if (!dropIsOnMap(drop)) {
+                    console.log('drop left the map')
+                    break;
+                }
 
                 const heightDecrease = getHeightForPosition(drop.prevX, drop.prevY) - getHeightForPosition(drop.x, drop.y);
                 if (heightDecrease > 0) {
@@ -114,30 +128,31 @@ function buildEroder(rnd, model) {
                     const carryCapacity = Math.max(heightDecrease, params.minSlope) * drop.speed * drop.water * params.capacity;
                     if (drop.sediment > carryCapacity) {
                         const deposit = (drop.sediment - carryCapacity) * params.deposition;
-                        updateElevation(drop.prevX, drop.prevY, deposit);
-                        drop.sediment -= deposit;
+                        depositSediment(drop, deposit);
+
                     } else {
                         const erosion = Math.min((carryCapacity - drop.sediment) * params.erosion, heightDecrease);
-                        updateElevation(drop.prevX, drop.prevY, -erosion);
-                        drop.sediment += erosion;
+                        depositSediment(drop, -erosion);
                     }
 
                 } else {
                     // moved uphill
                     if (drop.sediment <= -heightDecrease) {
                         // not enough sediment to fill pit
-                        updateElevation(drop.prevX, drop.prevY, drop.sediment);
-                        drop.sediment = 0;
+                        depositSediment(drop, drop.sediment);
+
                     } else {
                         // enough sediment to fill pit
-                        updateElevation(drop.prevX, drop.prevY, -heightDecrease);
-                        drop.sediment += heightDecrease;
+                        depositSediment(drop, -heightDecrease);
                     }
                 }
+                console.assert(drop.sediment >= 0)
 
                 updateSpeed(drop, heightDecrease);
                 updateWater(drop);
             }
+
+            return path;
         }
     };
 
