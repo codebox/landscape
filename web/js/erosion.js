@@ -5,14 +5,14 @@ function buildEroder(rnd, model) {
 
     const grid = model.getElevationGrid(),
         params = {
-            inertia: 0.01,
-            minSlope: 0.0001,
-            capacity: 0.1,
-            deposition: 0.4,
-            erosion: 0.4,
-            gravity: 5,
-            evaporation: 0.01,
-            maxSteps: 100
+            inertia: 0.1,
+            minSlope: 0.05,
+            capacity: 10,
+            deposition: 0.02,
+            erosion: 0.9,
+            gravity: 20,
+            evaporation: 0.001,
+            maxSteps: 10000
         };
 
     function getGradientForPosition(x,y) {
@@ -51,8 +51,8 @@ function buildEroder(rnd, model) {
 
     function buildDroplet() {
         return {
-            x: 25,//rnd() * (model.gridWidth - 1),
-            y: 66,//rnd() * (model.gridHeight - 1),
+            x: rnd() * (model.gridWidth - 1),
+            y: rnd() * (model.gridHeight - 1),
             dx: 0,
             dy: 0,
             speed: 0,
@@ -103,6 +103,7 @@ function buildEroder(rnd, model) {
     function depositSediment(drop, deposit) {
         updateElevation(drop.prevX, drop.prevY, deposit);
         drop.sediment -= deposit;
+        console.assert(drop.sediment >= 0);
     }
 
     const eroder = {
@@ -134,21 +135,22 @@ function buildEroder(rnd, model) {
                         const erosion = Math.min((carryCapacity - drop.sediment) * params.erosion, heightDecrease);
                         depositSediment(drop, -erosion);
                     }
+                    updateSpeed(drop, heightDecrease);
 
                 } else {
                     // moved uphill
                     if (drop.sediment <= -heightDecrease) {
                         // not enough sediment to fill pit
                         depositSediment(drop, drop.sediment);
+                        break;
 
                     } else {
                         // enough sediment to fill pit
                         depositSediment(drop, -heightDecrease);
+                        drop.speed = 0;
                     }
                 }
-                console.assert(drop.sediment >= 0)
 
-                updateSpeed(drop, heightDecrease);
                 updateWater(drop);
             }
 
