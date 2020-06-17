@@ -1,7 +1,7 @@
 function init(){
     "use strict";
-    const RENDER_SCALE = 1,
-        MODEL_SIZE = 500;
+    const RENDER_SCALE = 2,
+        MODEL_SIZE = 200;
 
     let rnd, model, view = buildView(RENDER_SCALE);
 
@@ -12,9 +12,9 @@ function init(){
     function doErosion(){
         setTimeout(() => {
             renderModel();
-            for (let i=0; i<100; i++) {
+            for (let i=0; i<1000; i++) {
                 const path = eroder.erode();
-                view.renderPath(path);
+                // view.renderPath(path);
                 console.log(i)
             }
             doErosion();
@@ -34,15 +34,14 @@ function init(){
     window.onresize = renderModel;
 
     view.onGoClick(() => {
-        renderModel();
-        for (let i=0; i<100; i++) {
-            const path = eroder.erode();
-            view.renderPath(path);
-            console.log(i)
-        }
-        setTimeout(renderModel, 5000);
-        // doErosion();
-
+        // renderModel();
+        // for (let i=0; i<100; i++) {
+        //     const path = eroder.erode();
+        //     view.renderPath(path);
+        //     console.log(i)
+        // }
+        // setTimeout(renderModel, 5000);
+        doErosion();
     });
     renderModel()
     view.onErode(p => {

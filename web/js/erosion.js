@@ -2,6 +2,7 @@ function buildEroder(rnd, model) {
     "use strict";
 
     // Algorithm from https://www.firespark.de/resources/downloads/implementation%20of%20a%20methode%20for%20hydraulic%20erosion.pdf
+    // http://ranmantaru.com/blog/2011/10/08/water-erosion-on-heightmap-terrain/
 
     const grid = model.getElevationGrid(),
         params = {
@@ -106,6 +107,33 @@ function buildEroder(rnd, model) {
         console.assert(drop.sediment >= 0);
     }
 
+    function erodeSurrounding(drop, erosionTotal) {
+        if (!erosionTotal) {
+            return;
+        }
+        const EROSION_RADIUS = 2,
+            startX = Math.max(0, drop.prevX - EROSION_RADIUS),
+            endX = Math.min(model.gridWidth - 1, drop.prevX + EROSION_RADIUS),
+            startY = Math.max(0, drop.prevY - EROSION_RADIUS),
+            endY = Math.min(model.gridHeight - 1, drop.prevY + EROSION_RADIUS),
+            erosionAmounts = [];
+
+        for (let x=startX; x<=endX; x++) {
+            for (let y=startY; y<=endY; y++) {
+                const xDiff = x - drop.prevX,
+                    yDiff = y - drop.prevY;
+                erosionAmounts.push({x, y, amount: Math.sqrt(xDiff*xDiff + yDiff*yDiff)});
+            }
+        }
+        const total = erosionAmounts.reduce((a,c) => a + c.amount, 0);
+
+        erosionAmounts.forEach(e => {
+            updateElevation(e.x, e.y, -erosionTotal * e.amount/total);
+        });
+
+        drop.sediment += erosionTotal;
+    }
+
     const eroder = {
         erode() {
             const drop = buildDroplet(), path = [];
@@ -133,7 +161,7 @@ function buildEroder(rnd, model) {
 
                     } else {
                         const erosion = Math.min((carryCapacity - drop.sediment) * params.erosion, heightDecrease);
-                        depositSediment(drop, -erosion);
+                        erodeSurrounding(drop, erosion);
                     }
                     updateSpeed(drop, heightDecrease);
 

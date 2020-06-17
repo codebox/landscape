@@ -28,17 +28,17 @@ function buildView(scale) {
     })();
 
     function drawElevationSquare(x, y, v) {
-        canvas.drawRectangle(x * scale, y * scale, scale, scale, getElevationColour(v, a));
+        canvas.drawRectangle(x * scale, y * scale, scale, scale, getElevationColour(v));
     }
 
-    function drawGradientSquare(x, y, v, g) {
-        const l = Math.sqrt(g.x*g.x + g.y*g.y)
-        const gc = Math.abs(g.y/l);
-        // const c = getElevationColour(v, gc)
-        const c = `rgba(0,0,0,${gc})`;
-        console.log(c)
-        canvas.drawRectangle(x * scale, y * scale, scale, scale, c);
-    }
+    // function drawGradientSquare(x, y, v, g) {
+    //     const l = Math.sqrt(g.x*g.x + g.y*g.y)
+    //     const gc = Math.abs(g.y/l);
+    //     // const c = getElevationColour(v, gc)
+    //     const c = `rgba(0,0,0,${gc})`;
+    //     console.log(c)
+    //     canvas.drawRectangle(x * scale, y * scale, scale, scale, c);
+    // }
 
     function getGradientForPosition(grid, x,y) {
         const posX = Math.floor(x),
@@ -59,11 +59,11 @@ function buildView(scale) {
     function renderElevation(model) {
         const grid = model.getElevationGrid();
         grid.forEach((x,y,v) => {
-            if (x>0 && y > 0 && x < model.gridWidth - 1 && y < model.gridHeight - 1){
-                const g = getGradientForPosition(grid, x, y);
-                drawGradientSquare(x, y, v, g);
-            }
-            //drawElevationSquare(x,y,v);
+            // if (x>0 && y > 0 && x < model.gridWidth - 1 && y < model.gridHeight - 1){
+            //     const g = getGradientForPosition(grid, x, y);
+            //     drawGradientSquare(x, y, v, g);
+            // }
+            drawElevationSquare(x,y,v);
         });
 
     }
