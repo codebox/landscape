@@ -1,7 +1,7 @@
 function init(){
     "use strict";
-    const RENDER_SCALE = 2,
-        MODEL_SIZE = 200;
+    const RENDER_SCALE = 1,
+        MODEL_SIZE = 500;
 
     let rnd, model, view = buildView(RENDER_SCALE);
 
@@ -21,7 +21,7 @@ function init(){
         }, 0)
     }
 
-    const seed = 1592406577843;//Number(view.getSeed()) || Date.now(); // 1592400515569
+    const seed = Number(view.getSeed()) || Date.now(); // 1592400515569
     view.setSeed(seed);
 
     rnd = randomFromSeed(seed);
@@ -34,13 +34,14 @@ function init(){
     window.onresize = renderModel;
 
     view.onGoClick(() => {
-        // for (let i=0; i<100; i++) {
-        //     const path = eroder.erode();
-        //     view.renderPath(path);
-        //     console.log(i)
-        // }
-        // renderModel();
-        doErosion();
+        renderModel();
+        for (let i=0; i<100; i++) {
+            const path = eroder.erode();
+            view.renderPath(path);
+            console.log(i)
+        }
+        setTimeout(renderModel, 5000);
+        // doErosion();
 
     });
     renderModel()

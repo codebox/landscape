@@ -56,9 +56,10 @@ function buildView(scale) {
             y: u * (h_x1y1 - h_x1y0) + (1-u) * (h_x0y1 - h_x0y0)
         }
     }
-    function renderElevation(grid) {
+    function renderElevation(model) {
+        const grid = model.getElevationGrid();
         grid.forEach((x,y,v) => {
-            if (x>0 && y > 0 && x < 199 && y < 199){
+            if (x>0 && y > 0 && x < model.gridWidth - 1 && y < model.gridHeight - 1){
                 const g = getGradientForPosition(grid, x, y);
                 drawGradientSquare(x, y, v, g);
             }
@@ -96,7 +97,7 @@ function buildView(scale) {
         },
         render(model) {
             canvas = buildCanvas(elCanvas, scale * model.gridWidth, scale * model.gridHeight);
-            renderElevation(model.getElevationGrid());
+            renderElevation(model);
             //renderDropletPaths(model.getDropPaths());
         },
         renderPath(path) {
