@@ -102,6 +102,7 @@ function buildEroder(rnd, model) {
     }
 
     function depositSediment(drop, deposit) {
+        console.assert(deposit >= 0);
         updateElevation(drop.prevX, drop.prevY, deposit/4);
         updateElevation(drop.prevX+1, drop.prevY, deposit/4);
         updateElevation(drop.prevX, drop.prevY+1, deposit/4);

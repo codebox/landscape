@@ -3,6 +3,9 @@ function buildView(scale) {
     const elCanvas = document.getElementById('canvas'),
         elGoButton = document.getElementById('go'),
         elSeed = document.getElementById('seed');
+
+    const SEA_LEVEL = -0.1;
+
     let canvas;
 
     function buildRangeShifter(minIn, maxIn, minOut, maxOut) {
@@ -13,8 +16,7 @@ function buildView(scale) {
     }
 
     const getElevationColour = (() => {
-        const SEA_LEVEL = -0.1,
-            getSeaLightness = buildRangeShifter(-1, SEA_LEVEL, 0, 50),
+        const getSeaLightness = buildRangeShifter(-1, SEA_LEVEL, 0, 50),
             getGroundLightness = buildRangeShifter(SEA_LEVEL, 1, 20, 100);
 
         return (elevation, alpha=1) => {
@@ -63,7 +65,7 @@ function buildView(scale) {
             //     const g = getGradientForPosition(grid, x, y);
             //     drawGradientSquare(x, y, v, g);
             // }
-            drawElevationSquare(x,y,v);
+            drawElevationSquare(x,y,Math.floor(v * 30) / 30);
         });
 
     }
@@ -72,6 +74,20 @@ function buildView(scale) {
         dropPaths.forEach((p,i) => {
             canvas.drawRectangle(p.x * scale, p.y * scale, scale, scale, i ? 'red' : 'white');
         })
+    }
+
+    function renderContours(model){
+        const INTERVAL = 0.05, CAPTURE = 0.001;
+
+
+        model.getElevationGrid().forEach((x,y,h) => {
+            if (h >= SEA_LEVEL) {
+                const roundedH = Math.floor(h / INTERVAL) * INTERVAL;
+                if (Math.abs(roundedH - h) < CAPTURE) {
+                    canvas.drawRectangle(x * scale, y * scale, scale, scale, 'black');
+                }
+            }
+        });
     }
 
     const view = {
@@ -98,6 +114,7 @@ function buildView(scale) {
         render(model) {
             canvas = buildCanvas(elCanvas, scale * model.gridWidth, scale * model.gridHeight);
             renderElevation(model);
+            // renderContours(model);
             //renderDropletPaths(model.getDropPaths());
         },
         renderPath(path) {
