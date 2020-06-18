@@ -28,7 +28,7 @@ function init(){
     rnd = randomFromSeed(seed);
     model = buildModel(rnd, MODEL_SIZE);
     const eroder = buildEroder(rnd, model),
-        contourPlotter = buildContourPlotter(rnd, model);
+        contourPlotter = buildContourPlotter(model);
 
     model.init();
     view.init();
@@ -50,14 +50,18 @@ function init(){
 
     view.onContourClick(() => {
         const contours = [];
-        let h = 0;
+        let h = -0.1;
         while(h <= 1) {
             contours.push(...contourPlotter.findContour(h));
-            h += 0.02;
+            h += 0.05;
         }
 
         view.renderContours(contours);
+    });
 
+    view.onSmoothClick(() => {
+        model.applySmoothing(5,0.5);
+        view.render(model);
     });
 
     renderModel()

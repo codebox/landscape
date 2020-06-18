@@ -3,10 +3,10 @@ function buildView(scale) {
     const elCanvas = document.getElementById('canvas'),
         elErodeButton = document.getElementById('erode'),
         elContourButton = document.getElementById('contour'),
+        elSmoothButton = document.getElementById('smooth'),
         elSeed = document.getElementById('seed');
 
-    const SEA_LEVEL = -0.1,
-        ELEVATION_COLOUR_INTERVAL = 30;
+    const SEA_LEVEL = -0.1;
 
     let canvas;
 
@@ -17,13 +17,20 @@ function buildView(scale) {
         };
     }
 
+    function buildValueRounder(step) {
+        return value => {
+            return Math.floor(value / step) * step;
+        };
+    }
+
     const getElevationColour = (() => {
         const getSeaLightness = buildRangeShifter(-1, SEA_LEVEL, 0, 50),
-            getGroundLightness = buildRangeShifter(SEA_LEVEL, 1, 20, 100);
+            getGroundLightness = buildRangeShifter(SEA_LEVEL, 1, 20, 100),
+            round = buildValueRounder(0.05);
 
         return (elevation, alpha=1) => {
             //console.assert(elevation >= -1 && elevation <= 1);
-            elevation = Math.floor(elevation * 50) / 50;
+            elevation = round(elevation);
             if (elevation < SEA_LEVEL) {
                 return `hsla(220,100%,${getSeaLightness(elevation)}%,${alpha})`;
             } else {
@@ -33,7 +40,6 @@ function buildView(scale) {
     })();
 
     function drawElevationSquare(x, y, v) {
-        v = Math.floor(v * ELEVATION_COLOUR_INTERVAL) / ELEVATION_COLOUR_INTERVAL;
         canvas.drawRectangle(x * scale, y * scale, scale, scale, getElevationColour(v));
     }
 
@@ -50,6 +56,9 @@ function buildView(scale) {
         },
         onContourClick(handler) {
             elContourButton.onclick = handler;
+        },
+        onSmoothClick(handler) {
+            elSmoothButton.onclick = handler;
         },
         getSeed() {
             return elSeed.value;

@@ -1,11 +1,7 @@
-function buildContourPlotter(rnd, model) {
+function buildContourPlotter(model) {
     "use strict";
 
     // Uses 'Marching Squares' algorithm
-
-    function getElevationFor(p) {
-        return model.getElevationGrid().get(Math.floor(p.x), Math.floor(p.y));
-    }
 
     function line(x1, y1, x2, y2) {
         return {x1, y1, x2, y2};
@@ -80,7 +76,7 @@ function buildContourPlotter(rnd, model) {
     const contourPlotter = {
         findContour(threshold) {
             function isAbove(x, y) {
-                return grid.get(x, y) > threshold ? 1 : 0;
+                return grid.get(x, y) >= threshold ? 1 : 0;
             }
 
             const grid = model.getElevationGrid(),
