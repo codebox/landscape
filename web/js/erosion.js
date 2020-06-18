@@ -142,7 +142,7 @@ function buildEroder(rnd, model) {
             const drop = buildDroplet(), path = [];
             let step = 0;
 
-            while(step++ > params.maxSteps) {
+            while(step++ < params.maxSteps) {
                 path.push({x: drop.x, y: drop.y});
                 const gradient = getGradientForPosition(drop.x, drop.y);
 
