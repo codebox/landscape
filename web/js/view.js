@@ -72,7 +72,7 @@ function buildView(scale) {
         },
         renderPath(path) {
             path.forEach((p,i) => {
-                canvas.drawRectangle(p.x * scale, p.y * scale, scale, scale, i ?'red':'white')
+                canvas.drawRectangle(p.x * scale, p.y * scale, scale, scale, i ?'blue':'white')
             });
         },
         renderContours(contours) {

@@ -1,8 +1,7 @@
 function init(){
     "use strict";
     const RENDER_SCALE = 1,
-        MODEL_SIZE = 500,
-        DEBUG = false;
+        MODEL_SIZE = 500;
 
     let rnd, model, view = buildView(RENDER_SCALE);
 
@@ -10,16 +9,25 @@ function init(){
         view.render(model);
     }
 
-    function doErosion(){
-        setTimeout(() => {
-            for (let i=0; i<10000; i++) {
+    function doErosion(cycles){
+        const BATCH_SIZE = 1000;
+        let totalComplete = 0;
+        function runErosionBatch() {
+            const batchSize = Math.min(BATCH_SIZE, cycles - totalComplete);
+            for (let i=0; i<batchSize; i++) {
                 const path = eroder.erode();
-                //view.renderPath(path);
-                console.log(i)
+                view.renderPath(path);
+                console.log(totalComplete + i);
             }
-            renderModel();
-            // doErosion();
-        }, 0)
+            totalComplete += batchSize;
+            setTimeout(() => {
+                renderModel();
+                if (totalComplete < cycles) {
+                    runErosionBatch();
+                }
+            }, 1000);
+        }
+        runErosionBatch();
     }
 
     const seed = Number(view.getSeed()) || Date.now();
@@ -36,16 +44,7 @@ function init(){
     window.onresize = renderModel;
 
     view.onErodeClick(() => {
-        if (DEBUG){
-            renderModel();
-            for (let i=0; i<100; i++) {
-                const path = eroder.erode();
-                view.renderPath(path);
-            }
-            setTimeout(renderModel, 5000);
-        } else {
-            doErosion();
-        }
+        doErosion(5000);
     });
 
     view.onContourClick(() => {
