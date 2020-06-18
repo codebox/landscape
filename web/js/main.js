@@ -27,14 +27,15 @@ function init(){
 
     rnd = randomFromSeed(seed);
     model = buildModel(rnd, MODEL_SIZE);
-    const eroder = buildEroder(rnd, model);
+    const eroder = buildEroder(rnd, model),
+        contourPlotter = buildContourPlotter(rnd, model);
 
     model.init();
     view.init();
 
     window.onresize = renderModel;
 
-    view.onGoClick(() => {
+    view.onErodeClick(() => {
         if (DEBUG){
             renderModel();
             for (let i=0; i<100; i++) {
@@ -45,6 +46,18 @@ function init(){
         } else {
             doErosion();
         }
+    });
+
+    view.onContourClick(() => {
+        const contours = [];
+        let h = 0;
+        while(h <= 1) {
+            contours.push(...contourPlotter.findContour(h));
+            h += 0.02;
+        }
+
+        view.renderContours(contours);
+
     });
 
     renderModel()

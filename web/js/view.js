@@ -1,10 +1,12 @@
 function buildView(scale) {
     "use strict";
     const elCanvas = document.getElementById('canvas'),
-        elGoButton = document.getElementById('go'),
+        elErodeButton = document.getElementById('erode'),
+        elContourButton = document.getElementById('contour'),
         elSeed = document.getElementById('seed');
 
-    const SEA_LEVEL = -0.1;
+    const SEA_LEVEL = -0.1,
+        ELEVATION_COLOUR_INTERVAL = 30;
 
     let canvas;
 
@@ -21,6 +23,7 @@ function buildView(scale) {
 
         return (elevation, alpha=1) => {
             //console.assert(elevation >= -1 && elevation <= 1);
+            elevation = Math.floor(elevation * 50) / 50;
             if (elevation < SEA_LEVEL) {
                 return `hsla(220,100%,${getSeaLightness(elevation)}%,${alpha})`;
             } else {
@@ -30,80 +33,23 @@ function buildView(scale) {
     })();
 
     function drawElevationSquare(x, y, v) {
+        v = Math.floor(v * ELEVATION_COLOUR_INTERVAL) / ELEVATION_COLOUR_INTERVAL;
         canvas.drawRectangle(x * scale, y * scale, scale, scale, getElevationColour(v));
     }
 
-    // function drawGradientSquare(x, y, v, g) {
-    //     const l = Math.sqrt(g.x*g.x + g.y*g.y)
-    //     const gc = Math.abs(g.y/l);
-    //     // const c = getElevationColour(v, gc)
-    //     const c = `rgba(0,0,0,${gc})`;
-    //     console.log(c)
-    //     canvas.drawRectangle(x * scale, y * scale, scale, scale, c);
-    // }
-
-    function getGradientForPosition(grid, x,y) {
-        const posX = Math.floor(x),
-            posY = Math.floor(y),
-            u = x - posX,
-            v = y - posY,
-
-            h_x0y0 = grid.get(posX, posY),
-            h_x1y0 = grid.get(posX + 1, posY),
-            h_x0y1 = grid.get(posX, posY + 1),
-            h_x1y1 = grid.get(posX + 1, posY + 1);
-
-        return {
-            x: v * (h_x1y1 - h_x0y1) + (1-v) * (h_x1y0 - h_x0y0),
-            y: u * (h_x1y1 - h_x1y0) + (1-u) * (h_x0y1 - h_x0y0)
-        }
-    }
     function renderElevation(model) {
-        const grid = model.getElevationGrid();
-        grid.forEach((x,y,v) => {
-            // if (x>0 && y > 0 && x < model.gridWidth - 1 && y < model.gridHeight - 1){
-            //     const g = getGradientForPosition(grid, x, y);
-            //     drawGradientSquare(x, y, v, g);
-            // }
-            drawElevationSquare(x,y,Math.floor(v * 30) / 30);
-        });
-
-    }
-
-    function renderDropletPaths(dropPaths) {
-        dropPaths.forEach((p,i) => {
-            canvas.drawRectangle(p.x * scale, p.y * scale, scale, scale, i ? 'red' : 'white');
-        })
-    }
-
-    function renderContours(model){
-        const INTERVAL = 0.05, CAPTURE = 0.001;
-
-
-        model.getElevationGrid().forEach((x,y,h) => {
-            if (h >= SEA_LEVEL) {
-                const roundedH = Math.floor(h / INTERVAL) * INTERVAL;
-                if (Math.abs(roundedH - h) < CAPTURE) {
-                    canvas.drawRectangle(x * scale, y * scale, scale, scale, 'black');
-                }
-            }
-        });
+        model.getElevationGrid().forEach(drawElevationSquare);
     }
 
     const view = {
         init() {
 
         },
-        onGoClick(handler) {
-            elGoButton.onclick = handler;
+        onErodeClick(handler) {
+            elErodeButton.onclick = handler;
         },
-        onErode(handler) {
-            elCanvas.onclick = event => {
-                const rect = elCanvas.getBoundingClientRect();
-                const x = event.clientX - rect.left;
-                const y = event.clientY - rect.top;
-                handler({x,y});
-            }
+        onContourClick(handler) {
+            elContourButton.onclick = handler;
         },
         getSeed() {
             return elSeed.value;
@@ -114,13 +60,14 @@ function buildView(scale) {
         render(model) {
             canvas = buildCanvas(elCanvas, scale * model.gridWidth, scale * model.gridHeight);
             renderElevation(model);
-            // renderContours(model);
-            //renderDropletPaths(model.getDropPaths());
         },
         renderPath(path) {
             path.forEach((p,i) => {
                 canvas.drawRectangle(p.x * scale, p.y * scale, scale, scale, i ?'red':'white')
-            })
+            });
+        },
+        renderContours(contours) {
+           canvas.drawLines(contours);
         }
     };
 
