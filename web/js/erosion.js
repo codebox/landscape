@@ -6,7 +6,7 @@ function buildEroder(rnd, model) {
 
     const grid = model.getElevationGrid(),
         params = {
-            inertia: 0.1,
+            inertia: 0.05,
             minSlope: 0.05,
             capacity: 10,
             deposition: 0.02,
