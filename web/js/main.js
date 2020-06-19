@@ -1,9 +1,10 @@
 function init(){
     "use strict";
     const RENDER_SCALE = 1,
-        MODEL_SIZE = 500;
+        MODEL_SIZE = 500,
+        SEA_LEVEL = -0.1;
 
-    let rnd, model, view = buildView(RENDER_SCALE);
+    let rnd, model, view = buildView(RENDER_SCALE, SEA_LEVEL);
 
     function renderModel() {
         view.render(model);
@@ -36,7 +37,8 @@ function init(){
     rnd = randomFromSeed(seed);
     model = buildModel(rnd, MODEL_SIZE);
     const eroder = buildEroder(rnd, model),
-        contourPlotter = buildContourPlotter(model);
+        contourPlotter = buildContourPlotter(model),
+        wavePlotter = buildWavePlotter(model);
 
     model.init();
     view.init();
@@ -49,13 +51,19 @@ function init(){
 
     view.onContourClick(() => {
         const contours = [];
-        let h = -0.1;
+        let h = SEA_LEVEL;
         while(h <= 1) {
             contours.push(...contourPlotter.findContour(h));
             h += 0.05;
         }
-
         view.renderContours(contours);
+    });
+
+    view.onWaveClick(() => {
+        const coastalContour = contourPlotter.findContour(SEA_LEVEL),
+            waveLines = wavePlotter.getWaveLines(coastalContour);
+
+        view.renderWaves(waveLines);
     });
 
     view.onSmoothClick(() => {

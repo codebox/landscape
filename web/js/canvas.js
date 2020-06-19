@@ -16,8 +16,9 @@ function buildCanvas(elCanvas, width, height) {
             ctx.fillStyle = colour;
             ctx.fillRect(x, y, w, h);
         },
-        drawLines(lines) {
+        drawLines(lines, colour='black') {
             ctx.beginPath();
+            ctx.strokeStyle = colour;
             lines.forEach(l => {
                 ctx.moveTo(l.x1, l.y1);
                 ctx.lineTo(l.x2, l.y2);

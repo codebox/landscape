@@ -1,12 +1,13 @@
-function buildView(scale) {
+function buildView(scale, _seaLevel) {
     "use strict";
     const elCanvas = document.getElementById('canvas'),
         elErodeButton = document.getElementById('erode'),
         elContourButton = document.getElementById('contour'),
+        elWaveButton = document.getElementById('wave'),
         elSmoothButton = document.getElementById('smooth'),
-        elSeed = document.getElementById('seed');
+        elSeed = document.getElementById('seed'),
+        seaLevel = _seaLevel;
 
-    const SEA_LEVEL = -0.1;
 
     let canvas;
 
@@ -24,14 +25,14 @@ function buildView(scale) {
     }
 
     const getElevationColour = (() => {
-        const getSeaLightness = buildRangeShifter(-1, SEA_LEVEL, 0, 50),
-            getGroundLightness = buildRangeShifter(SEA_LEVEL, 1, 20, 100),
+        const getSeaLightness = buildRangeShifter(-1, seaLevel, 0, 50),
+            getGroundLightness = buildRangeShifter(seaLevel, 1, 20, 100),
             round = buildValueRounder(0.05);
 
         return (elevation, alpha=1) => {
             //console.assert(elevation >= -1 && elevation <= 1);
             elevation = round(elevation);
-            if (elevation < SEA_LEVEL) {
+            if (elevation < seaLevel) {
                 return `hsla(220,100%,${getSeaLightness(elevation)}%,${alpha})`;
             } else {
                 return `hsla(115,100%,${getGroundLightness(elevation)}%,${alpha})`;
@@ -60,6 +61,9 @@ function buildView(scale) {
         onSmoothClick(handler) {
             elSmoothButton.onclick = handler;
         },
+        onWaveClick(handler) {
+            elWaveButton.onclick = handler;
+        },
         getSeed() {
             return elSeed.value;
         },
@@ -77,6 +81,9 @@ function buildView(scale) {
         },
         renderContours(contours) {
            canvas.drawLines(contours);
+        },
+        renderWaves(waveLines) {
+
         }
     };
 
