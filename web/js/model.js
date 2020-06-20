@@ -14,8 +14,8 @@ function buildModel(rnd, gridSize) {
         }
     }
 
-    function assertGridCoords(x,y) {
-        console.assert(Math.floor(x) === x && Math.floor(y) === y && x >= 0 && x < gridSize && y >= 0 && y < gridSize, `x: ${x} y: ${y}`);
+    function isOnGrid(x,y) {
+        return x >= 0 && x < gridSize && y >= 0 && y < gridSize;
     }
 
     function sumValues(grid, x, y, radius) {
@@ -48,12 +48,14 @@ function buildModel(rnd, gridSize) {
                     }
                 },
                 get(x, y) {
-                    assertGridCoords(x, y);
-                    return elevationGrid[y][x]
+                    if (isOnGrid(x, y)) {
+                        return elevationGrid[y][x]
+                    }
                 },
                 set(x, y, val) {
-                    assertGridCoords(x, y);
-                    elevationGrid[y][x] = val;
+                    if (isOnGrid(x, y) && Math.floor(x) === x && Math.floor(y) === y) {
+                        elevationGrid[y][x] = val;
+                    }
                 },
             }
         },

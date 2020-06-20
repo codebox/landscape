@@ -83,7 +83,10 @@ function buildView(scale, _seaLevel) {
            canvas.drawLines(contours);
         },
         renderWaves(waveLines) {
-
+            const getColour = buildRangeShifter(0, waveLines.length-1, 70, 50);
+            waveLines.forEach((waveLine, i) => {
+                canvas.drawPath(waveLine, `hsl(220, 100%, ${getColour(i)}%)`);
+            });
         }
     };
 

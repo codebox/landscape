@@ -24,6 +24,15 @@ function buildCanvas(elCanvas, width, height) {
                 ctx.lineTo(l.x2, l.y2);
             });
             ctx.stroke();
+        },
+        drawPath(path, colour='black') {
+            ctx.beginPath();
+            // ctx.strokeStyle = colour;
+            // ctx.moveTo(path[0].x, path[0].y);
+            path.forEach(p => {
+                this.drawRectangle(p.x, p.y, 1, 1, colour);
+            });
+            ctx.stroke();
         }
     };
     canvas.clear();

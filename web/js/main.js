@@ -38,7 +38,7 @@ function init(){
     model = buildModel(rnd, MODEL_SIZE);
     const eroder = buildEroder(rnd, model),
         contourPlotter = buildContourPlotter(model),
-        wavePlotter = buildWavePlotter(model);
+        wavePlotter = buildWavePlotter(model, SEA_LEVEL);
 
     model.init();
     view.init();
