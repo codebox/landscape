@@ -45,21 +45,39 @@ function buildWavePlotter(model) {
                 }
 
                 function findLinesStartingAt(x, y) {
-                    const getStartingX =  l => l.x1,
+                    const getStartingX = l => l.x1,
                         index = binarySearchIndex(sortedByStartX, x, getStartingX);
+
                     if (index === undefined) {
                         return [];
                     }
-                    return [index, ...findNeighboursWithSameValue(sortedByStartX, index, getStartingX)].map(i => sortedByStartX[i]).filter(l => l.y1 === y);
+
+                    const indexes = [index, ...findNeighboursWithSameValue(sortedByStartX, index, getStartingX)],
+                        matchingLineIndexes = indexes.filter(i => sortedByStartX[i].y1 === y);
+
+                    const matches = [];
+                    matchingLineIndexes.sort().reverse().forEach(i => {
+                        matches.push(...sortedByStartX.splice(i, 1));
+                    });
+                    return matches;
                 }
 
                 function findLinesEndingAt(x,y) {
-                    const getEndingX =  l => l.x2,
+                    const getEndingX = l => l.x2,
                         index = binarySearchIndex(sortedByEndX, x, getEndingX);
+
                     if (index === undefined) {
                         return [];
                     }
-                    return [index, ...findNeighboursWithSameValue(sortedByEndX, index, getEndingX)].map(i => sortedByEndX[i]).filter(l => l.y2 === y);
+
+                    const indexes = [index, ...findNeighboursWithSameValue(sortedByEndX, index, getEndingX)],
+                        matchingLineIndexes = indexes.filter(i => sortedByEndX[i].y2 === y);
+
+                    const matches = [];
+                    matchingLineIndexes.sort().reverse().forEach(i => {
+                        matches.push(...sortedByEndX.splice(i, 1));
+                    });
+                    return matches;
                 }
 
                 return [...findLinesStartingAt(x,y), ...findLinesEndingAt(x,y)];
@@ -74,16 +92,16 @@ function buildWavePlotter(model) {
             const chain = {
                 add(p) {
                     console.assert(
-                        (p.x1 === this.start.x && p.y1 === this.start.y) ||
-                        (p.x2 === this.start.x && p.y2 === this.start.y) ||
-                        (p.x2 === this.end.x && p.y2 === this.end.y) ||
-                        (p.x1 === this.end.x && p.y1 === this.end.y)
+                        (p.x1 === chain.start.x && p.y1 === chain.start.y) ||
+                        (p.x2 === chain.start.x && p.y2 === chain.start.y) ||
+                        (p.x2 === chain.end.x && p.y2 === chain.end.y) ||
+                        (p.x1 === chain.end.x && p.y1 === chain.end.y)
                     );
-                    if (p.x1 === this.start.x) {
+                    if (p.x1 === chain.start.x) {
                         points.unshift({x: p.x2, y: p.y2});
-                    } else if (p.x2 === this.start.x) {
+                    } else if (p.x2 === chain.start.x) {
                         points.unshift({x: p.x1, y: p.y1});
-                    } else if (p.x1 === this.end.x) {
+                    } else if (p.x1 === chain.end.x) {
                         points.push({x: p.x2, y: p.y2});
                     } else {
                         points.push({x: p.x1, y: p.y1});
@@ -94,15 +112,37 @@ function buildWavePlotter(model) {
                 },
                 get end() {
                     return points[points.length - 1];
+                },
+                list() {
+                    return points;
                 }
             };
             return chain;
         }
 
-        const wrapper = buildContourWrapper(coastalContour);
-        const batches = [];
+        const wrapper = buildContourWrapper(coastalContour),
+            chain = buildChain(coastalContour[0]);
 
-        return batches;
+        while(true) {
+            const lines = wrapper.findLinesAt(chain.start.x, chain.start.y);
+            if (!lines.length) {
+                break;
+            } else {
+                chain.add(lines[0]);
+            }
+        }
+
+        while(true) {
+            const lines = wrapper.findLinesAt(chain.end.x, chain.end.y);
+            if (!lines.length) {
+                break;
+            } else {
+                chain.add(lines[0]);
+            }
+        }
+
+console.log(chain.list())
+        return [];
     }
 
     function smoothBatch(batch, smoothing) {
@@ -115,7 +155,7 @@ function buildWavePlotter(model) {
 
     return {
         getWaveLines(coastalContour) {
-            const sortedFragmentBatches = sortAndBatchFragments(...coastalContour);
+            const sortedFragmentBatches = sortAndBatchFragments(coastalContour);
 
             const SMOOTHING = 2, WAVE_COUNT = 5, WAVE_SPACING = 3, wavePointBatches = [];
             sortedFragmentBatches.forEach(batch => {
