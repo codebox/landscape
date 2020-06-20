@@ -60,10 +60,9 @@ function init(){
     });
 
     view.onWaveClick(() => {
-        const coastalContour = contourPlotter.findContour(SEA_LEVEL),
-            waveLines = wavePlotter.getWaveLines(coastalContour);
+        const wavePoints = wavePlotter.getWavePoints();
 
-        view.renderWaves(waveLines);
+        view.renderWaves(wavePoints);
     });
 
     view.onSmoothClick(() => {

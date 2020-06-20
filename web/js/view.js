@@ -82,10 +82,12 @@ function buildView(scale, _seaLevel) {
         renderContours(contours) {
            canvas.drawLines(contours);
         },
-        renderWaves(waveLines) {
-            const getColour = buildRangeShifter(0, waveLines.length-1, 70, 50);
-            waveLines.forEach((waveLine, i) => {
-                canvas.drawPath(waveLine, `hsl(220, 100%, ${getColour(i)}%)`);
+        renderWaves(waves) {
+            const getColour = buildRangeShifter(0, waves.length-1, 70, 50);
+            waves.forEach((wave, i) => {
+                wave.forEach(p => {
+                    canvas.drawRectangle(p.x, p.y, 1, 1, `hsla(220, 100%,${getColour(i)}%, 0.5)`);
+                });
             });
         }
     };
