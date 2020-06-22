@@ -32,7 +32,7 @@ function init(){
         runErosionBatch();
     }
 
-    const seed = 1592733088268;//Number(view.getSeed()) || Date.now();
+    const seed = Number(view.getSeed()) || Date.now(); // 1592733088268
     view.setSeed(seed);
 
     rnd = randomFromSeed(seed);
@@ -47,7 +47,7 @@ function init(){
     window.onresize = renderModel;
 
     view.onErodeClick(() => {
-        doErosion(50000);
+        doErosion(10000);
     });
 
     view.onContourClick(() => {

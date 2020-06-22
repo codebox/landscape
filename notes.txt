@@ -15,3 +15,4 @@ TODO
 * Locate towns
 * Draw roads connecting towns
 * Add buildings to towns
+* Erosion params should scale with model size

@@ -131,8 +131,10 @@ function buildView(scale, _seaLevel, _snowLevel) {
                 });
             });
         },
-        renderRivers(rivers) {
-
+        renderRivers(riverPoints) {
+            riverPoints.forEach(p => {
+                canvas.drawRectangle(p.x, p.y, 1, 1, `rgba(0,80,240,${Math.min(1, p.fill/1000)})`);
+            });
         }
     };
 
