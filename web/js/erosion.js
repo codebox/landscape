@@ -1,4 +1,4 @@
-function buildEroder(rnd, model) {
+function buildEroder(rnd, model, seaLevel) {
     "use strict";
 
     // Algorithm from https://www.firespark.de/resources/downloads/implementation%20of%20a%20methode%20for%20hydraulic%20erosion.pdf
@@ -144,6 +144,10 @@ function buildEroder(rnd, model) {
             let step = 0;
 
             while(step++ < params.maxSteps) {
+                const elevation = getHeightForPosition(drop.x, drop.y);
+                if (elevation < seaLevel) {
+                    break;
+                }
                 path.push({x: drop.x, y: drop.y});
                 const gradient = getGradientForPosition(drop.x, drop.y);
 
@@ -159,7 +163,7 @@ function buildEroder(rnd, model) {
                     break
                 }
 
-                const heightDecrease = getHeightForPosition(drop.prevX, drop.prevY) - getHeightForPosition(drop.x, drop.y);
+                const heightDecrease = elevation - getHeightForPosition(drop.x, drop.y);
                 if (heightDecrease > 0) {
                     // moved downhill
                     const carryCapacity = Math.max(heightDecrease, params.minSlope) * drop.speed * drop.water * params.capacity;
@@ -192,6 +196,9 @@ function buildEroder(rnd, model) {
             }
 
             return path;
+        },
+        findRivers() {
+
         }
     };
 

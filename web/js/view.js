@@ -1,12 +1,14 @@
-function buildView(scale, _seaLevel) {
+function buildView(scale, _seaLevel, _snowLevel) {
     "use strict";
     const elCanvas = document.getElementById('canvas'),
         elErodeButton = document.getElementById('erode'),
+        elRiversButton = document.getElementById('rivers'),
         elContourButton = document.getElementById('contour'),
         elWaveButton = document.getElementById('wave'),
         elSmoothButton = document.getElementById('smooth'),
         elSeed = document.getElementById('seed'),
-        seaLevel = _seaLevel;
+        seaLevel = _seaLevel,
+        snowLevel = _snowLevel;
 
 
     let canvas;
@@ -26,26 +28,62 @@ function buildView(scale, _seaLevel) {
 
     const getElevationColour = (() => {
         const getSeaLightness = buildRangeShifter(-1, seaLevel, 0, 50),
-            getGroundLightness = buildRangeShifter(seaLevel, 1, 20, 100),
+            getGroundLightnessEl = buildRangeShifter(seaLevel, snowLevel, 30, 70),
+            getGroundLightnessIl = buildRangeShifter(0, 1, 0.6, 1),
+            getGroundSaturation = buildRangeShifter(seaLevel, snowLevel, 100, 0),
             round = buildValueRounder(0.05);
 
-        return (elevation, alpha=1) => {
+        return (elevation, illumination) => {
             //console.assert(elevation >= -1 && elevation <= 1);
             elevation = round(elevation);
             if (elevation < seaLevel) {
-                return `hsla(220,100%,${getSeaLightness(elevation)}%,${alpha})`;
+                return `hsl(220,100%,${getSeaLightness(elevation)}%)`;
+
+            } else if (elevation > snowLevel) {
+                return `hsl(0,0%,${getGroundLightnessIl(illumination) * 100}%)`;
+
             } else {
-                return `hsla(115,100%,${getGroundLightness(elevation)}%,${alpha})`;
+                return `hsl(115,${getGroundSaturation(elevation)}%,${getGroundLightnessEl(elevation) * getGroundLightnessIl(illumination)}%)`;
             }
         };
     })();
 
-    function drawElevationSquare(x, y, v) {
-        canvas.drawRectangle(x * scale, y * scale, scale, scale, getElevationColour(v));
+    function drawElevationSquare(model, x, y, v) {
+        function magnitude(v) {
+            return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+        }
+        const elevationFactor = buildRangeShifter(seaLevel, 1, 1, 10000)(v),
+            // Diagonal 1
+            a = {
+                x: 1,
+                y: 0,
+                z: elevationFactor * (model.getElevationGrid().get(x+1, y) - v)
+            },
+            // Diagonal 2
+            b = {
+                x: 0,
+                y: 1,
+                z: elevationFactor * (model.getElevationGrid().get(x, y+1) - v)
+            },
+            light = {
+                x: -1,
+                y: -1,
+                z: 0
+            },
+            normal = {
+                x: a.y * b.z - a.z * b.y,
+                y: a.z * b.x - a.x * b.z,
+                z: a.x * b.y - a.y * b.x
+            },
+            cosIlluminationAngle =
+                (light.x * normal.x + light.y * normal.y + light.z * normal.z) / (magnitude(light) * magnitude(normal)),
+            illumination = Math.max(0, cosIlluminationAngle);
+        canvas.drawRectangle(x * scale, y * scale, scale, scale, getElevationColour(v, illumination));
     }
 
     function renderElevation(model) {
-        model.getElevationGrid().forEach(drawElevationSquare);
+        let min = 100, max=0;
+        model.getElevationGrid().forEach((x,y,v) => drawElevationSquare(model, x, y, v));
     }
 
     const view = {
@@ -54,6 +92,9 @@ function buildView(scale, _seaLevel) {
         },
         onErodeClick(handler) {
             elErodeButton.onclick = handler;
+        },
+        onRiversClick(handler) {
+            elRiversButton.onclick = handler;
         },
         onContourClick(handler) {
             elContourButton.onclick = handler;
@@ -89,6 +130,9 @@ function buildView(scale, _seaLevel) {
                     canvas.drawRectangle(p.x, p.y, 1, 1, `hsla(220, 100%,${getColour(i)}%, 0.5)`);
                 });
             });
+        },
+        renderRivers(rivers) {
+
         }
     };
 

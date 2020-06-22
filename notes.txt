@@ -1,0 +1,17 @@
+Algorithms
+----------
+Mulberry32 pseudo-random number generation
+Perlin Noise
+Marching Squares
+Un-named hydraulic erosion algorithm
+Gausian Blur
+Cosine Law of Illuminance
+
+TODO
+----
+* Shading with light source
+* River Paths (uniform rain, count number of droplets that cross each point, add rivers when more than some threshold number of drops cross)
+* Add vegetation types
+* Locate towns
+* Draw roads connecting towns
+* Add buildings to towns

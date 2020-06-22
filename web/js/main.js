@@ -2,16 +2,17 @@ function init(){
     "use strict";
     const RENDER_SCALE = 1,
         MODEL_SIZE = 500,
-        SEA_LEVEL = -0.1;
+        SEA_LEVEL = -0.1,
+        SNOW_LEVEL = 0;
 
-    let rnd, model, view = buildView(RENDER_SCALE, SEA_LEVEL);
+    let rnd, model, view = buildView(RENDER_SCALE, SEA_LEVEL, SNOW_LEVEL);
 
     function renderModel() {
         view.render(model);
     }
 
     function doErosion(cycles){
-        const BATCH_SIZE = 1000;
+        const BATCH_SIZE = 10000;
         let totalComplete = 0;
         function runErosionBatch() {
             const batchSize = Math.min(BATCH_SIZE, cycles - totalComplete);
@@ -31,12 +32,12 @@ function init(){
         runErosionBatch();
     }
 
-    const seed = Number(view.getSeed()) || Date.now();
+    const seed = 1592733088268;//Number(view.getSeed()) || Date.now();
     view.setSeed(seed);
 
     rnd = randomFromSeed(seed);
-    model = buildModel(rnd, MODEL_SIZE);
-    const eroder = buildEroder(rnd, model),
+    model = buildModel(rnd, MODEL_SIZE, SEA_LEVEL);
+    const eroder = buildEroder(rnd, model, SEA_LEVEL),
         contourPlotter = buildContourPlotter(model),
         wavePlotter = buildWavePlotter(model, SEA_LEVEL);
 
@@ -46,7 +47,7 @@ function init(){
     window.onresize = renderModel;
 
     view.onErodeClick(() => {
-        doErosion(5000);
+        doErosion(50000);
     });
 
     view.onContourClick(() => {
@@ -66,8 +67,13 @@ function init(){
     });
 
     view.onSmoothClick(() => {
-        model.applySmoothing(5,0.5);
+        model.applySmoothing(5);
         view.render(model);
+    });
+
+    view.onRiversClick(() => {
+        const rivers = eroder.findRivers();
+        view.renderRivers(rivers);
     });
 
     renderModel()
