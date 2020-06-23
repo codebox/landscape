@@ -5,17 +5,7 @@ function buildEroder(rnd, model, seaLevel) {
     // http://ranmantaru.com/blog/2011/10/08/water-erosion-on-heightmap-terrain/
 
     const grid = model.getElevationGrid(),
-        params = {
-            inertia: 0.0,
-            minSlope: 0.05,
-            capacity: 10,
-            deposition: 0.02,
-            erosion: 0.9,
-            gravity: 20,
-            evaporation: 0.0001,
-            maxSteps: 1000,
-            erosionRadius: 3
-        };
+        params = config.erosion;
 
     function getGradientForPosition(x,y) {
         const posX = Math.floor(x),
@@ -197,7 +187,7 @@ function buildEroder(rnd, model, seaLevel) {
 
             return path;
         },
-        findRivers(threshold) {
+        findRivers() {
             const dropCounters = [];
             let i=0;
             model.getElevationGrid().forEach((x,y,_) => {

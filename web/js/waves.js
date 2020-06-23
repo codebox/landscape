@@ -48,12 +48,11 @@ function buildWavePlotter(model, seaLevel) {
 
     return {
         getWavePoints() {
-            const WAVE_COUNT = 10, WAVE_SEPARATION = 1.5,
-                shallowWater = findShallowWater(seaLevel, seaLevel - 0.1),
+            const shallowWater = findShallowWater(config.seaLevel, config.seaLevel - config.waveDepthLimit),
                 wavePoints = [];
 
-            for (let i=0; i<WAVE_COUNT; i++) {
-                wavePoints.push(findPointsThisCloseToLand(shallowWater, WAVE_SEPARATION * (i + 1)));
+            for (let i=0; i<config.waveCount; i++) {
+                wavePoints.push(findPointsThisCloseToLand(shallowWater, config.waveSeparation * (i + 1)));
             }
 
             return wavePoints;

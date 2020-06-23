@@ -1,21 +1,15 @@
 function init(){
     "use strict";
-    const RENDER_SCALE = 1,
-        MODEL_SIZE = 500,
-        SEA_LEVEL = -0.1,
-        SNOW_LEVEL = 0;
-
-    let rnd, model, view = buildView(RENDER_SCALE, SEA_LEVEL, SNOW_LEVEL);
+    let rnd, model, view;
 
     function renderModel() {
         view.render(model);
     }
 
     function doErosion(cycles){
-        const BATCH_SIZE = 10000;
         let totalComplete = 0;
         function runErosionBatch() {
-            const batchSize = Math.min(BATCH_SIZE, cycles - totalComplete);
+            const batchSize = Math.min(config.erosionBatchSize, cycles - totalComplete);
             for (let i=0; i<batchSize; i++) {
                 const path = eroder.erode();
                 view.renderPath(path);
@@ -27,7 +21,7 @@ function init(){
                 if (totalComplete < cycles) {
                     runErosionBatch();
                 }
-            }, 1000);
+            }, config.erosionPreviewMillis);
         }
         runErosionBatch();
     }
@@ -36,10 +30,10 @@ function init(){
     view.setSeed(seed);
 
     rnd = randomFromSeed(seed);
-    model = buildModel(rnd, MODEL_SIZE, SEA_LEVEL);
-    const eroder = buildEroder(rnd, model, SEA_LEVEL),
+    model = buildModel(rnd);
+    const eroder = buildEroder(rnd, model),
         contourPlotter = buildContourPlotter(model),
-        wavePlotter = buildWavePlotter(model, SEA_LEVEL);
+        wavePlotter = buildWavePlotter(model);
 
     model.init();
     view.init();
@@ -47,15 +41,15 @@ function init(){
     window.onresize = renderModel;
 
     view.onErodeClick(() => {
-        doErosion(10000);
+        doErosion(config.erosionCycles);
     });
 
     view.onContourClick(() => {
         const contours = [];
-        let h = SEA_LEVEL;
+        let h = config.seaLevel;
         while(h <= 1) {
             contours.push(...contourPlotter.findContour(h));
-            h += 0.05;
+            h += config.contourSpacing;
         }
         view.renderContours(contours);
     });
@@ -67,7 +61,7 @@ function init(){
     });
 
     view.onSmoothClick(() => {
-        model.applySmoothing(5);
+        model.applySmoothing(config.smoothingRadius);
         view.render(model);
     });
 
