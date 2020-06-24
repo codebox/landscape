@@ -5,7 +5,7 @@ const config = Object.freeze({
     seaLevel: -0.1,
     snowLevel: 0,
     erosionCycles: 10000,
-    erosionBatchSize: 10000,
+    erosionBatchSize: 1000,
     erosionPreviewMillis: 1000,
     smoothingRadius: 5,
     contourSpacing: 0.05,
@@ -13,6 +13,7 @@ const config = Object.freeze({
     waveCount: 10,
     waveSeparation: 1.5,
     waveDepthLimit: 0.1,
+    waterDropMinVolume: 0.01,
     erosion: {
         inertia: 0.0,
         minSlope: 0.05,

@@ -88,8 +88,10 @@ function buildRenderer(elCanvas) {
                 });
             },
             renderErosionPaths(paths) {
-                paths.forEach((p,i) => {
-                    canvas.drawRectangle(p.x * scale, p.y * scale, scale, scale, i ?'blue':'white')
+                paths.forEach(path => {
+                    path.forEach((p,i) => {
+                        canvas.drawRectangle(p.x * config.renderScale, p.y * config.renderScale, config.renderScale, config.renderScale, i ? 'blue' : 'white')
+                    });
                 });
             }
         };

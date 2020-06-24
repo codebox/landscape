@@ -8,48 +8,46 @@ function init(){
         view.render(model);
     }
 
-    // function doErosion(cycles){
-    //     let totalComplete = 0;
-    //     function runErosionBatch() {
-    //         const batchSize = Math.min(config.erosionBatchSize, cycles - totalComplete);
-    //         for (let i=0; i<batchSize; i++) {
-    //             const path = eroder.erode();
-    //             view.renderPath(path);
-    //             console.log(totalComplete + i);
-    //         }
-    //         totalComplete += batchSize;
-    //         setTimeout(() => {
-    //             renderModel();
-    //             if (totalComplete < cycles) {
-    //                 runErosionBatch();
-    //             }
-    //         }, config.erosionPreviewMillis);
-    //     }
-    //     runErosionBatch();
-    // }
-
     const seed = Number(view.getSeed()) || Date.now(); // 1592733088268
     view.setSeed(seed);
     rnd = randomFromSeed(seed);
     model = buildModel(rnd);
-
-    // const eroder = buildEroder(rnd, model),
-    //
-    //
 
     model.init();
     view.init();
 
     const contourPlotter = buildContourPlotter(),
         wavePlotter = buildWavePlotter(),
-        smoother = buildSmoother();
+        smoother = buildSmoother(),
+        eroder = buildEroder(rnd);
 
     window.onresize = renderModel;
 
-    // view.onErodeClick(() => {
-    //     doErosion(config.erosionCycles);
-    // });
-    //
+    view.onErodeClick(() => {
+        function doErosion(cycles){
+            let totalComplete = 0;
+            function runErosionBatch() {
+                const batchSize = Math.min(config.erosionBatchSize, cycles - totalComplete);
+                const {paths, elevation} = eroder.erode(model.elevation, batchSize);
+                model.elevation = elevation;
+                model.erosionPaths = paths;
+                renderModel();
+                totalComplete += batchSize;
+                console.log(totalComplete);
+                setTimeout(() => {
+                    model.erosionPaths = [];
+                    renderModel();
+                    if (totalComplete < cycles) {
+                        runErosionBatch();
+                    }
+                }, config.erosionPreviewMillis);
+            }
+            runErosionBatch();
+        }
+        doErosion(config.erosionCycles);
+        renderModel();
+    });
+
     view.onContourClick(() => {
         model.contours = contourPlotter.getContours(model.elevation);
         renderModel();
@@ -62,13 +60,13 @@ function init(){
 
     view.onSmoothClick(() => {
         model.elevation = smoother.smooth(model.elevation);
-        view.render(model);
+        renderModel();
     });
-    //
-    // view.onRiversClick(() => {
-    //     const rivers = eroder.findRivers();
-    //     view.renderRivers(rivers);
-    // });
+
+    view.onRiversClick(() => {
+        model.rivers = eroder.findRivers(model.elevation);
+        renderModel();
+    });
 
     renderModel()
 };
