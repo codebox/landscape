@@ -87,7 +87,9 @@ function buildContourPlotter() {
                 return;
             }
             const boundaryValue = 8 * isAbove(x, y) + 4 * isAbove(x+1, y) + isAbove(x, y+1) + 2 * isAbove(x+1, y+1);
-            lines.push(...boundaryValueLookup[boundaryValue](x, y));
+            lines.push(...boundaryValueLookup[boundaryValue](x, y).map(line => {
+                return {...line, elevation: grid.get(x,y)}
+            }));
 
         });
 

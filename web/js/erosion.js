@@ -135,7 +135,7 @@ function buildEroder(rnd) {
             if (elevation < config.seaLevel) {
                 break;
             }
-            path.push({x: drop.x, y: drop.y});
+            path.push({x: drop.x, y: drop.y, el: elevation});
             const gradient = getGradientForPosition(grid, drop.x, drop.y);
 
             updateDirectionOfMovement(drop, gradient);
@@ -246,9 +246,9 @@ function buildEroder(rnd) {
 
             const riverPoints = [];
 
-            grid.forEach((x,y,_) => {
+            grid.forEach((x,y,el) => {
                 if (dropCounters[y] && (dropCounters[y][x] > 0)) {
-                    riverPoints.push({x,y,fill:dropCounters[y][x]});
+                    riverPoints.push({x,y,el,fill:dropCounters[y][x]});
                 }
             });
 

@@ -47,6 +47,7 @@ function init(){
             runErosionBatch();
         }
         doErosion(config.erosionCycles, () => {
+            model.erosionPaths = [];
             if (model.contours.length) {
                 model.contours = contourPlotter.getContours(model.elevation);
             }
