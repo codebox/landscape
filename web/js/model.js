@@ -1,58 +1,34 @@
-function buildModel(rnd, gridSize, seaLevel) {
+function buildModel(rnd) {
     "use strict";
-    let elevationGrid;
 
-    function initElevationGrid() {
-        const levels = 6, weightDecay = 3,
-            perlin2d = buildPerlinEnsemble(rnd, gridSize, levels, weightDecay);
-        elevationGrid = [];
-        for (let y=0; y<gridSize; y++) {
-            elevationGrid[y] = [];
-            for (let x=0; x<gridSize; x++) {
-                elevationGrid[y][x] = perlin2d(x / gridSize, y / gridSize);
+    function initElevation() {
+        console.assert(config.mapHeight === config.mapWidth);
+        const perlin2d = buildPerlinEnsemble(rnd, config.mapHeight, config.perlinLevels, config.perlinWeightDecay);
+        model.elevation = [];
+        for (let y=0; y<config.mapHeight; y++) {
+            model.elevation[y] = [];
+            for (let x=0; x<config.mapWidth; x++) {
+                model.elevation[y][x] = perlin2d(x / config.mapWidth, y / config.mapHeight);
             }
         }
     }
 
-    function isOnGrid(x,y) {
-        return x >= 0 && x < gridSize && y >= 0 && y < gridSize;
-    }
-
     const model = {
         init() {
-            initElevationGrid();
+            initElevation();
         },
 
-        getElevationGrid() {
-            return {
-                forEach(fn) {
-                    for (let y = 0; y < gridSize; y++) {
-                        for (let x = 0; x < gridSize; x++) {
-                            fn(x, y, this.get(x, y));
-                        }
-                    }
-                },
-                get(x, y) {
-                    if (isOnGrid(x, y)) {
-                        return elevationGrid[y][x]
-                    }
-                },
-                set(x, y, val) {
-                    if (isOnGrid(x, y) && Math.floor(x) === x && Math.floor(y) === y) {
-                        elevationGrid[y][x] = val;
-                    }
-                },
-            }
-        },
-        applySmoothing(radius) {
-            const smoother = buildSmoother(model, seaLevel, radius);
-            this.getElevationGrid().forEach((x,y,v) => {
-                this.getElevationGrid().set(x,y,smoother.smooth({x,y}));
-            });
-        },
-
-        gridWidth : gridSize,
-        gridHeight : gridSize
+        // applySmoothing(radius) {
+        //     const smoother = buildSmoother(model, seaLevel, radius);
+        //     this.getElevationGrid().forEach((x,y,v) => {
+        //         this.getElevationGrid().set(x,y,smoother.smooth({x,y}));
+        //     });
+        // },
+        elevation: [],
+        erosionPaths: [],
+        contours: [],
+        waves: [],
+        rivers: []
     };
     return model;
 }

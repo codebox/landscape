@@ -110,3 +110,37 @@ function buildPerlinEnsemble(rnd, size, levels, weightDecay) {
         });
     return (x,y) => fns.reduce((v, fn) => v + fn(x,y), 0);
 }
+
+function buildGrid(data) {
+    "use strict";
+    console.assert(data.length > 0, 'no rows present');
+    console.assert(Math.min(...data.map(a => a.length)) === Math.max(...data.map(a => a.length)), 'rows have different lengths');
+    console.assert(data[0].length > 0, 'no columns present');
+
+    const width = data[0].length,
+        height = data.length;
+
+    function isOnGrid(x,y) {
+        return x >= 0 && x < width && y >= 0 && y < height;
+    }
+
+    return {
+        forEach(fn) {
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    fn(x, y, this.get(x, y));
+                }
+            }
+        },
+        get(x, y) {
+            if (isOnGrid(x, y)) {
+                return data[y][x]
+            }
+        },
+        set(x, y, val) {
+            if (isOnGrid(x, y) && Math.floor(x) === x && Math.floor(y) === y) {
+                data[y][x] = val;
+            }
+        }
+    };
+}

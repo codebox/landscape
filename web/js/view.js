@@ -34,20 +34,12 @@ function buildView() {
         setSeed(seed) {
             elSeed.value = seed;
         },
-        renderLandscape(model) {
-            renderer.renderLandscape(model);
-        },
-        renderPath(paths) {
-            renderer.renderErosionPaths(paths);
-        },
-        renderContours(contours) {
-           renderer.renderContours(contours);
-        },
-        renderWaves(waves) {
-            renderer.renderWaves(waves);
-        },
-        renderRivers(riverPoints) {
-            renderer.renderRivers(riverPoints);
+        render(model) {
+            renderer.renderLandscape(model.elevation);
+            renderer.renderErosionPaths(model.erosionPaths);
+            renderer.renderContours(model.contours);
+            renderer.renderWaves(model.waves);
+            renderer.renderRivers(model.rivers);
         }
     };
 

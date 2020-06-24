@@ -22,5 +22,12 @@ const config = Object.freeze({
         evaporation: 0.0001,
         maxSteps: 1000,
         erosionRadius: 3
+    },
+    perlinLevels: 6,
+    perlinWeightDecay: 3,
+    sunPosition: {
+        x: -1,
+        y: -1,
+        z: 0
     }
 });

@@ -36,28 +36,24 @@ function buildRenderer(elCanvas) {
         };
     })();
 
-    function drawElevationSquare(model, x, y, v) {
+    function drawElevationSquare(grid, x, y, v) {
         function magnitude(v) {
             return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
         }
-        const elevationFactor = buildRangeShifter(seaLevel, 1, 1, 10000)(v),
+        const elevationFactor = buildRangeShifter(config.seaLevel, 1, 1, 10000)(v),
             // Diagonal 1
             a = {
                 x: 1,
                 y: 0,
-                z: elevationFactor * (model.getElevationGrid().get(x+1, y) - v)
+                z: elevationFactor * (grid.get(x+1, y) - v)
             },
             // Diagonal 2
             b = {
                 x: 0,
                 y: 1,
-                z: elevationFactor * (model.getElevationGrid().get(x, y+1) - v)
+                z: elevationFactor * (grid.get(x, y+1) - v)
             },
-            light = {
-                x: -1,
-                y: -1,
-                z: 0
-            },
+            light = config.sunPosition,
             normal = {
                 x: a.y * b.z - a.z * b.y,
                 y: a.z * b.x - a.x * b.z,
@@ -66,13 +62,14 @@ function buildRenderer(elCanvas) {
             cosIlluminationAngle =
                 (light.x * normal.x + light.y * normal.y + light.z * normal.z) / (magnitude(light) * magnitude(normal)),
             illumination = Math.max(0, cosIlluminationAngle);
-        canvas.drawRectangle(x * scale, y * scale, scale, scale, getElevationColour(v, illumination));
+        canvas.drawRectangle(x * config.renderScale, y * config.renderScale, config.renderScale, config.renderScale, getElevationColour(v, illumination));
     }
 
     function renderer() {
         return {
-            renderLandscape(model) {
-                model.getElevationGrid().forEach((x,y,v) => drawElevationSquare(model, x, y, v));
+            renderLandscape(elevation) {
+                const elevationGrid = buildGrid(elevation);
+                elevationGrid.forEach((x,y,v) => drawElevationSquare(elevationGrid, x, y, v));
             },
             renderContours(contours) {
                 canvas.drawLines(contours);
