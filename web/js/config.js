@@ -30,5 +30,9 @@ const config = Object.freeze({
         x: -1,
         y: -1,
         z: 0
+    },
+    smoothing: {
+        radius: 5,
+        ρ: 1
     }
 });

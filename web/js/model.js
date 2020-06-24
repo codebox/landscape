@@ -17,13 +17,6 @@ function buildModel(rnd) {
         init() {
             initElevation();
         },
-
-        // applySmoothing(radius) {
-        //     const smoother = buildSmoother(model, seaLevel, radius);
-        //     this.getElevationGrid().forEach((x,y,v) => {
-        //         this.getElevationGrid().set(x,y,smoother.smooth({x,y}));
-        //     });
-        // },
         elevation: [],
         erosionPaths: [],
         contours: [],

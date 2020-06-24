@@ -111,6 +111,14 @@ function buildPerlinEnsemble(rnd, size, levels, weightDecay) {
     return (x,y) => fns.reduce((v, fn) => v + fn(x,y), 0);
 }
 
+function forEachInRange(start, finish, fn) {
+    "use strict";
+    console.assert(start <= finish);
+    for (let i=start; i<=finish; i++) {
+        fn(i);
+    }
+}
+
 function buildGrid(data) {
     "use strict";
     console.assert(data.length > 0, 'no rows present');
@@ -141,6 +149,20 @@ function buildGrid(data) {
             if (isOnGrid(x, y) && Math.floor(x) === x && Math.floor(y) === y) {
                 data[y][x] = val;
             }
+        },
+        clone() {
+            const clonedGrid = [];
+            this.forEach((x,y,value) => {
+                if (!clonedGrid[y]) {
+                    clonedGrid[y] = [];
+                }
+                clonedGrid[y][x] = value;
+            });
+            return buildGrid(clonedGrid);
+        },
+        toArray() {
+            return data;
         }
     };
 }
+

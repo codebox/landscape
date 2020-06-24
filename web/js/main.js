@@ -41,7 +41,8 @@ function init(){
     view.init();
 
     const contourPlotter = buildContourPlotter(),
-        wavePlotter = buildWavePlotter();
+        wavePlotter = buildWavePlotter(),
+        smoother = buildSmoother();
 
     window.onresize = renderModel;
 
@@ -59,11 +60,10 @@ function init(){
         renderModel();
     });
 
-    //
-    // view.onSmoothClick(() => {
-    //     model.applySmoothing(config.smoothingRadius);
-    //     view.render(model);
-    // });
+    view.onSmoothClick(() => {
+        model.elevation = smoother.smooth(model.elevation);
+        view.render(model);
+    });
     //
     // view.onRiversClick(() => {
     //     const rivers = eroder.findRivers();
