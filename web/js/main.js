@@ -34,11 +34,14 @@ function init(){
     model = buildModel(rnd);
 
     // const eroder = buildEroder(rnd, model),
-    //     contourPlotter = buildContourPlotter(model),
+    //
     //     wavePlotter = buildWavePlotter(model);
+
 
     model.init();
     view.init();
+
+    const contourPlotter = buildContourPlotter(model.elevation);
 
     window.onresize = renderModel;
 
@@ -46,15 +49,16 @@ function init(){
     //     doErosion(config.erosionCycles);
     // });
     //
-    // view.onContourClick(() => {
-    //     const contours = [];
-    //     let h = config.seaLevel;
-    //     while(h <= 1) {
-    //         contours.push(...contourPlotter.findContour(h));
-    //         h += config.contourSpacing;
-    //     }
-    //     view.renderContours(contours);
-    // });
+    view.onContourClick(() => {
+        const contours = [];
+        let h = config.seaLevel;
+        while(h <= 1) {
+            contours.push(...contourPlotter.findContour(h));
+            h += config.contourSpacing;
+        }
+        model.contours = contours;
+        renderModel();
+    });
     //
     // view.onWaveClick(() => {
     //     const wavePoints = wavePlotter.getWavePoints();

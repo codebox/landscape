@@ -1,4 +1,4 @@
-function buildContourPlotter(model) {
+function buildContourPlotter(elevation) {
     "use strict";
 
     // Uses 'Marching Squares' algorithm
@@ -79,17 +79,19 @@ function buildContourPlotter(model) {
                 return grid.get(x, y) >= threshold ? 1 : 0;
             }
 
-            const grid = model.getElevationGrid(),
+            const grid = buildGrid(elevation),
                 lines = [];
 
-            for (let x=0; x<model.gridWidth - 2; x++) {
-                for (let y=0; y<model.gridHeight - 2; y++) {
-                    // 8 4
-                    // 1 2
-                    const boundaryValue = 8 * isAbove(x, y) + 4 * isAbove(x+1, y) + isAbove(x, y+1) + 2 * isAbove(x+1, y+1);
-                    lines.push(...boundaryValueLookup[boundaryValue](x, y));
+            grid.forEach((x,y,el) => {
+                // 8 4
+                // 1 2
+                if (x > config.mapWidth - 2 || y > config.mapHeight - 2) {
+                    return;
                 }
-            }
+                const boundaryValue = 8 * isAbove(x, y) + 4 * isAbove(x+1, y) + isAbove(x, y+1) + 2 * isAbove(x+1, y+1);
+                lines.push(...boundaryValueLookup[boundaryValue](x, y));
+
+            });
 
             return lines;
         }
