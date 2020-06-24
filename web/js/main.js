@@ -24,7 +24,7 @@ function init(){
     window.onresize = renderModel;
 
     view.onErodeClick(() => {
-        function doErosion(cycles){
+        function doErosion(cycles, onComplete){
             let totalComplete = 0;
             function runErosionBatch() {
                 const batchSize = Math.min(config.erosionBatchSize, cycles - totalComplete);
@@ -36,16 +36,22 @@ function init(){
                 console.log(totalComplete);
                 setTimeout(() => {
                     model.erosionPaths = [];
-                    renderModel();
                     if (totalComplete < cycles) {
+                        renderModel();
                         runErosionBatch();
+                    } else {
+                        onComplete();
                     }
                 }, config.erosionPreviewMillis);
             }
             runErosionBatch();
         }
-        doErosion(config.erosionCycles);
-        renderModel();
+        doErosion(config.erosionCycles, () => {
+            if (model.contours.length) {
+                model.contours = contourPlotter.getContours(model.elevation);
+            }
+            renderModel();
+        });
     });
 
     view.onContourClick(() => {
@@ -60,6 +66,9 @@ function init(){
 
     view.onSmoothClick(() => {
         model.elevation = smoother.smooth(model.elevation);
+        if (model.contours.length) {
+            model.contours = contourPlotter.getContours(model.elevation);
+        }
         renderModel();
     });
 

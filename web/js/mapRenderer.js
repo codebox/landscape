@@ -1,7 +1,7 @@
 function buildRenderer(elCanvas) {
     "use strict";
 
-    const canvas = buildCanvas(elCanvas, config.renderScale * config.mapWidth, config.renderScale * config.mapHeight);
+    const canvas = buildCanvas(elCanvas, config.mapWidth, config.mapHeight);
 
     function buildRangeShifter(minIn, maxIn, minOut, maxOut) {
         return v => {
@@ -62,7 +62,7 @@ function buildRenderer(elCanvas) {
             cosIlluminationAngle =
                 (light.x * normal.x + light.y * normal.y + light.z * normal.z) / (magnitude(light) * magnitude(normal)),
             illumination = Math.max(0, cosIlluminationAngle);
-        canvas.drawRectangle(x * config.renderScale, y * config.renderScale, config.renderScale, config.renderScale, getElevationColour(v, illumination));
+        canvas.drawRectangle(x, y, 1, 1, getElevationColour(v, illumination));
     }
 
     function renderer() {
@@ -90,7 +90,7 @@ function buildRenderer(elCanvas) {
             renderErosionPaths(paths) {
                 paths.forEach(path => {
                     path.forEach((p,i) => {
-                        canvas.drawRectangle(p.x * config.renderScale, p.y * config.renderScale, config.renderScale, config.renderScale, i ? 'blue' : 'white')
+                        canvas.drawRectangle(p.x, p.y, 1, 1, i ? 'blue' : 'white')
                     });
                 });
             }
