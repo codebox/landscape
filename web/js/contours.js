@@ -73,29 +73,38 @@ function buildContourPlotter(elevation) {
         (x,y) => [] // Case 15
     ]
 
-    const contourPlotter = {
-        findContour(threshold) {
-            function isAbove(x, y) {
-                return grid.get(x, y) >= threshold ? 1 : 0;
+    function findContour(grid, threshold) {
+        function isAbove(x, y) {
+            return grid.get(x, y) >= threshold ? 1 : 0;
+        }
+
+        const lines = [];
+
+        grid.forEach((x,y) => {
+            // 8 4
+            // 1 2
+            if (x > config.mapWidth - 2 || y > config.mapHeight - 2) {
+                return;
             }
+            const boundaryValue = 8 * isAbove(x, y) + 4 * isAbove(x+1, y) + isAbove(x, y+1) + 2 * isAbove(x+1, y+1);
+            lines.push(...boundaryValueLookup[boundaryValue](x, y));
 
+        });
+
+        return lines;
+    }
+
+    return {
+        getContours(elevation) {
             const grid = buildGrid(elevation),
-                lines = [];
-
-            grid.forEach((x,y,el) => {
-                // 8 4
-                // 1 2
-                if (x > config.mapWidth - 2 || y > config.mapHeight - 2) {
-                    return;
-                }
-                const boundaryValue = 8 * isAbove(x, y) + 4 * isAbove(x+1, y) + isAbove(x, y+1) + 2 * isAbove(x+1, y+1);
-                lines.push(...boundaryValueLookup[boundaryValue](x, y));
-
-            });
-
-            return lines;
+                contours = [];
+            let contourHeight = config.seaLevel;
+            while (contourHeight <= config.maxContour) {
+                contours.push(...findContour(grid, contourHeight));
+                contourHeight += config.contourSpacing;
+            }
+            return contours;
         }
     };
 
-    return contourPlotter;
 }

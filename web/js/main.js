@@ -50,13 +50,7 @@ function init(){
     // });
     //
     view.onContourClick(() => {
-        const contours = [];
-        let h = config.seaLevel;
-        while(h <= 1) {
-            contours.push(...contourPlotter.findContour(h));
-            h += config.contourSpacing;
-        }
-        model.contours = contours;
+        model.contours = contourPlotter.getContours(model.elevation);
         renderModel();
     });
     //

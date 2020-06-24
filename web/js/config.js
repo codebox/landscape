@@ -9,6 +9,7 @@ const config = Object.freeze({
     erosionPreviewMillis: 1000,
     smoothingRadius: 5,
     contourSpacing: 0.05,
+    maxContour: 1,
     waveCount: 10,
     waveSeparation: 1.5,
     waveDepthLimit: 0.1,
