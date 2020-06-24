@@ -35,5 +35,10 @@ const config = Object.freeze({
     smoothing: {
         radius: 5,
         ρ: 1
+    },
+    threeD: {
+        yOffset: 100,
+        heightFactor: 200,
+        perspective: 3
     }
 });

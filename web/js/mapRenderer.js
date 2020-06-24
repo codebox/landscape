@@ -114,18 +114,18 @@ function buildRenderer(elCanvas) {
 
     return {
         twoD() {
-            return renderer((x,y,el) => {
+            return renderer((x,y) => {
                 return {x,y,w:1,h:1};
             });
         },
         threeD() {
             return renderer((x,y,el) => {
-                const widthForY = buildRangeShifter(0, config.mapHeight, 1, 3)(y),
-                    offsetForY = buildRangeShifter(0, config.mapHeight, config.mapWidth, 0)(y),
+                const widthForY = buildRangeShifter(0, config.mapHeight, 1, config.threeD.perspective)(y),
+                    offsetForY = buildRangeShifter(0, config.mapHeight, config.mapWidth * (config.threeD.perspective - 1) / 2, 0)(y),
                     x3d = x * widthForY + offsetForY,
                     heightForY = 1.0,
-                    offsetForY2 = Math.max(el, config.seaLevel) * buildRangeShifter(0, config.mapHeight, 100, 400)(y),
-                    y3d = y * heightForY - offsetForY2 + 100;
+                    offsetForY2 = Math.max(el, config.seaLevel) * buildRangeShifter(0, config.mapHeight, config.threeD.heightFactor, config.threeD.heightFactor * config.threeD.perspective)(y),
+                    y3d = y * heightForY - offsetForY2 + config.threeD.yOffset;
 
                 return {x: x3d,y: y3d,w:widthForY, h:heightForY};
             });
