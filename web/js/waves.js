@@ -1,9 +1,9 @@
-function buildWavePlotter(model, seaLevel) {
+function buildWavePlotter() {
     "use strict";
 
-    function findShallowWater(maxElevation, minElevation) {
+    function findShallowWater(grid, maxElevation, minElevation) {
         const shallowWaterPoints = [];
-        model.getElevationGrid().forEach((x,y,el) => {
+        grid.forEach((x,y,el) => {
             if (maxElevation >= el && minElevation <= el) {
                 shallowWaterPoints.push({x,y});
             }
@@ -21,7 +21,7 @@ function buildWavePlotter(model, seaLevel) {
         return list.filter(p => p.d <= radius);
     }
 
-    function findPointsThisCloseToLand(points, distance, delta=0.5) {
+    function findPointsThisCloseToLand(grid, points, distance, delta=0.5) {
         const proximityList = buildProximityList(distance + delta),
             matchingPoints = [];
 
@@ -30,8 +30,8 @@ function buildWavePlotter(model, seaLevel) {
                 if (smallestDistanceSoFar < proximityPoint.d) {
                     return smallestDistanceSoFar;
                 }
-                const elevation = model.getElevationGrid().get(Math.floor(p.x + proximityPoint.x), Math.floor(p.y + proximityPoint.y));
-                if (elevation !== undefined && elevation >= seaLevel) {
+                const elevation = grid.get(Math.floor(p.x + proximityPoint.x), Math.floor(p.y + proximityPoint.y));
+                if (elevation !== undefined && elevation >= config.seaLevel) {
                     return Math.min(smallestDistanceSoFar, proximityPoint.d);
                 } else {
                     return smallestDistanceSoFar;
@@ -47,12 +47,13 @@ function buildWavePlotter(model, seaLevel) {
     }
 
     return {
-        getWavePoints() {
-            const shallowWater = findShallowWater(config.seaLevel, config.seaLevel - config.waveDepthLimit),
+        getWavePoints(elevation) {
+            const grid = buildGrid(elevation),
+                shallowWater = findShallowWater(grid, config.seaLevel, config.seaLevel - config.waveDepthLimit),
                 wavePoints = [];
 
             for (let i=0; i<config.waveCount; i++) {
-                wavePoints.push(findPointsThisCloseToLand(shallowWater, config.waveSeparation * (i + 1)));
+                wavePoints.push(findPointsThisCloseToLand(grid, shallowWater, config.waveSeparation * (i + 1)));
             }
 
             return wavePoints;

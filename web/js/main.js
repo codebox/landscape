@@ -35,13 +35,13 @@ function init(){
 
     // const eroder = buildEroder(rnd, model),
     //
-    //     wavePlotter = buildWavePlotter(model);
-
+    //
 
     model.init();
     view.init();
 
-    const contourPlotter = buildContourPlotter(model.elevation);
+    const contourPlotter = buildContourPlotter(),
+        wavePlotter = buildWavePlotter();
 
     window.onresize = renderModel;
 
@@ -53,12 +53,12 @@ function init(){
         model.contours = contourPlotter.getContours(model.elevation);
         renderModel();
     });
-    //
-    // view.onWaveClick(() => {
-    //     const wavePoints = wavePlotter.getWavePoints();
-    //
-    //     view.renderWaves(wavePoints);
-    // });
+
+    view.onWaveClick(() => {
+        model.waves = wavePlotter.getWavePoints(model.elevation);
+        renderModel();
+    });
+
     //
     // view.onSmoothClick(() => {
     //     model.applySmoothing(config.smoothingRadius);

@@ -1,4 +1,4 @@
-function buildContourPlotter(elevation) {
+function buildContourPlotter() {
     "use strict";
 
     // Uses 'Marching Squares' algorithm
