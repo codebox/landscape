@@ -8,7 +8,7 @@ function init(){
         view.render(model);
     }
 
-    const seed = Number(view.getSeed()) || Date.now(); // 1592733088268
+    const seed = Number(view.getSeed()) || Date.now(); // 1592733088268, 1593090177466
     view.setSeed(seed);
     rnd = randomFromSeed(seed);
     model = buildModel(rnd);
