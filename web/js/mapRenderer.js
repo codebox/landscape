@@ -36,6 +36,31 @@ function buildRenderer(elCanvas) {
         };
     })();
 
+    function calculateIllumination(grid, x, y, el) {
+        function magnitude(v) {
+            return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+        }
+        const a = {
+                x: 1,
+                y: 0,
+                z: 10000 * (grid.get(x+1, y) - el)
+            },
+            b = {
+                x: 0,
+                y: 1,
+                z: 10000 * (grid.get(x, y+1) - el)
+            },
+            light = config.sunPosition,
+            normal = {
+                x: a.y * b.z - a.z * b.y,
+                y: a.z * b.x - a.x * b.z,
+                z: a.x * b.y - a.y * b.x
+            },
+            cosIlluminationAngle =
+                (light.x * normal.x + light.y * normal.y + light.z * normal.z) / (magnitude(light) * magnitude(normal));
+
+        return Math.max(0, cosIlluminationAngle);
+    }
 
     function renderer(transformCoords) {
         function drawElevationSquare(grid, x, y, v) {
@@ -75,16 +100,18 @@ function buildRenderer(elCanvas) {
                 elevationGrid.forEach((x,y,v) => drawElevationSquare(elevationGrid, x, y, v));
             },
             renderContours(contours) {
-                canvas.drawLines(contours.map(c => {
-                    const newP1 = transformCoords(c.x1, c.y1, c.elevation),
-                        newP2 = transformCoords(c.x2, c.y2, c.elevation);
-                    return {
-                        x1: newP1.x,
-                        y1: newP1.y,
-                        x2: newP2.x + newP2.w,
-                        y2: newP2.y + newP2.h
-                    };
-                }));
+                contours.forEach(contour => {
+                    canvas.drawLines(contour.map(c => {
+                        const newP1 = transformCoords(c.x1, c.y1, c.elevation),
+                            newP2 = transformCoords(c.x2, c.y2, c.elevation);
+                        return {
+                            x1: newP1.x,
+                            y1: newP1.y,
+                            x2: newP2.x + newP2.w,
+                            y2: newP2.y + newP2.h
+                        };
+                    }));
+                });
             },
             renderWaves(waves) {
                 const getColour = buildRangeShifter(0, waves.length-1, 70, 50);
@@ -129,6 +156,50 @@ function buildRenderer(elCanvas) {
 
                 return {x: x3d,y: y3d,w:widthForY, h:heightForY};
             });
+        },
+        plain() {
+            return {
+                renderLandscape(elevation) {
+                    const grid = buildGrid(elevation);
+                    const getGroundLightnessIl = buildRangeShifter(0, 1, 90, 100);
+                    grid.forEach((x,y,el) => {
+                        canvas.drawRectangle(x, y, 1, 1, el < config.seaLevel ? 'aliceblue' : `hsl(0, 0%, ${getGroundLightnessIl(calculateIllumination(grid, x, y, el))}%`);
+                    });
+                },
+                renderContours(contours) {
+                    Object.keys(contours).forEach(contourHeight => {
+                        const numContourHeight = Number(contourHeight);
+                        let colour;
+                        if (numContourHeight === Number(config.seaLevel)) {
+                            colour = 'black';
+                        } else {
+                            colour = '#bbb';
+                        }
+                        canvas.drawLines(contours[contourHeight], colour);
+                    });
+                },
+                renderWaves(waves) {
+                    const getColour = buildRangeShifter(0, waves.length-1, 70, 50),
+                        getAlpha = buildRangeShifter(0, waves.length-1, 1, 0.2);
+                    waves.forEach((wave, i) => {
+                        wave.forEach(p => {
+                            canvas.drawRectangle(p.x, p.y, 1, 1, `hsla(220, 100%,${getColour(i)}%, ${getAlpha(i)})`);
+                        });
+                    });
+                },
+                renderRivers(riverPoints) {
+                    riverPoints.forEach(p => {
+                        canvas.drawRectangle(p.x, p.y, 1, 1, `rgba(0,80,240,${Math.min(1, p.fill/1000)})`);
+                    });
+                },
+                renderErosionPaths(paths) {
+                    paths.forEach(path => {
+                        path.forEach((p,i) => {
+                            canvas.drawRectangle(p.x, p.y, 1, 1, i ? 'blue' : 'white')
+                        });
+                    });
+                }
+            };
         }
     };
 }

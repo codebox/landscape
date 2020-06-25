@@ -99,10 +99,11 @@ function buildContourPlotter() {
     return {
         getContours(elevation) {
             const grid = buildGrid(elevation),
-                contours = [];
+                contours = {};
             let contourHeight = config.seaLevel;
             while (contourHeight <= config.maxContour) {
-                contours.push(...findContour(grid, contourHeight));
+                const contour = findContour(grid, contourHeight);
+                contours[contourHeight] = contour;
                 contourHeight += config.contourSpacing;
             }
             return contours;
