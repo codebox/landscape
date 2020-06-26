@@ -6,6 +6,8 @@ Marching Squares
 Un-named hydraulic erosion algorithm
 Gausian Blur
 Cosine Law of Illuminance
+Dijkstra
+Priority Queue
 
 TODO
 ----
