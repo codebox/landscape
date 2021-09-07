@@ -1,4 +1,4 @@
-function dijkstra(grid, pStart, pEnd) {
+function dijkstra(pStart, pEnd) {
     "use strict";
     const COMPASS_DISTANCE = 1,
         DIAGONAL_DISTANCE = Math.sqrt(2);
@@ -8,26 +8,18 @@ function dijkstra(grid, pStart, pEnd) {
     }
 
     const unvisited = (() => {
-        const distance = [];
+        const distance = [],
+            minHeap = buildHeap(v => v.d);
+
         for (let y = 0; y < config.mapHeight; y++) {
             distance[y]=[];
             for (let x = 0; x < config.mapWidth; x++) {
                 distance[y][x] = Number.MAX_VALUE;
             }
         }
-        distance[pStart.y][pStart.x] = 0;
+        minHeap.insert({x: pStart.x, y:pStart.y, d: distance[pStart.y][pStart.x] = 0});
 
         const unvisitedObj = {
-            forEach(fn) {
-                for (let y = 0; y < config.mapHeight; y++) {
-                    for (let x = 0; x < config.mapWidth; x++) {
-                        const p = {x,y};
-                        if (unvisitedObj.contains(p)) {
-                            fn(p, unvisitedObj.get(p));
-                        }
-                    }
-                }
-            },
             getUnvisitedNeighbours(p) {
                 return [
                     {x:p.x-1, y:p.y-1, d: DIAGONAL_DISTANCE},
@@ -48,40 +40,45 @@ function dijkstra(grid, pStart, pEnd) {
             },
             set(p, newValue) {
                 distance[p.y][p.x] = newValue;
+                minHeap.insert({x:p.x, y:p.y, d: newValue});
             },
             remove(p) {
-                unvisitedObj.set(p, undefined);
+                distance[p.y][p.x] = undefined;
             },
             getSmallest() {
-                // TODO replace this with priority queue
-
-                let pSmallest, smallestDistance = Number.MAX_VALUE;
-
-                unvisitedObj.forEach((p, distance) => {
-                    if (distance < smallestDistance) {
-                        smallestDistance = distance;
-                        pSmallest = p;
-                    }
-                });
-
+                const pSmallest = minHeap.extract();
+                unvisitedObj.remove(pSmallest);
                 return pSmallest;
             }
         };
         return unvisitedObj;
     })();
 
-    let pCurrent = pStart;
-    while (!areTheSame(pCurrent, pEnd)) {
+    let pCurrent;
+    const parents = {finish: null};
+    while (pCurrent = unvisited.getSmallest()) {
         unvisited.getUnvisitedNeighbours(pCurrent).forEach(pUnvisitedNeighbour => {
-            const currentTentativeDistance = unvisited.get(pCurrent),
+            const currentTentativeDistance = pCurrent.d,
                 neighbourTentativeDistance = unvisited.get(pUnvisitedNeighbour),
                 newNeighbourTentativeDistance = currentTentativeDistance + pUnvisitedNeighbour.d;
-
-            unvisited.set(pUnvisitedNeighbour, Math.min(newNeighbourTentativeDistance, neighbourTentativeDistance));
+            if (newNeighbourTentativeDistance < neighbourTentativeDistance) {
+                pUnvisitedNeighbour = pCurrent;
+                unvisited.set(pUnvisitedNeighbour, newNeighbourTentativeDistance);
+            }
         });
-        unvisited.remove(pCurrent);
-        pCurrent = unvisited.getSmallest();
+        console.log(pCurrent)
+        if (areTheSame(pCurrent, pEnd)) {
+            console.log('found!')
+            break;
+        }
     }
 
-    return unvisited.get(pCurrent);
+    const optimalPath = [];
+    let c = pEnd;
+    while(!areTheSame(c,pStart)) {
+        optimalPath.push(c);
+        c = parents[c];
+    }
+
+    return optimalPath;
 }
