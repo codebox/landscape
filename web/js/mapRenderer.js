@@ -100,7 +100,8 @@ function buildRenderer(elCanvas) {
                 elevationGrid.forEach((x,y,v) => drawElevationSquare(elevationGrid, x, y, v));
             },
             renderContours(contours) {
-                contours.forEach(contour => {
+                Object.keys(contours).forEach(contourHeight => {
+                    const contour = contours[contourHeight];
                     canvas.drawLines(contour.map(c => {
                         const newP1 = transformCoords(c.x1, c.y1, c.elevation),
                             newP2 = transformCoords(c.x2, c.y2, c.elevation);

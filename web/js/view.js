@@ -7,7 +7,7 @@ function buildView() {
         elWaveButton = document.getElementById('wave'),
         elSmoothButton = document.getElementById('smooth'),
         elSeed = document.getElementById('seed'),
-        renderer = buildRenderer(elCanvas).plain();
+        renderer = buildRenderer(elCanvas).twoD();
 
     const view = {
         init() {
