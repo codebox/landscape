@@ -1,47 +1,75 @@
+const EVENT_RND_CLICK = 'rndClick',
+    EVENT_GO_CLICK = 'goClick',
+    EVENT_ERODE_CLICK = 'erodeClick',
+    EVENT_RIVERS_CLICK = 'riversClick',
+    EVENT_CONTOURS_CLICK = 'contourClick',
+    EVENT_WAVES_CLICK = 'wavesClick',
+    EVENT_SMOOTH_CLICK = 'smoothClick';
+
 function buildView() {
     "use strict";
-    const elCanvas = document.getElementById('canvas'),
-        elErodeButton = document.getElementById('erode'),
-        elRiversButton = document.getElementById('rivers'),
-        elContourButton = document.getElementById('contour'),
-        elWaveButton = document.getElementById('wave'),
-        elSmoothButton = document.getElementById('smooth'),
-        elSeed = document.getElementById('seed'),
-        renderer = buildRenderer(elCanvas).twoD();
+    const CSS_CLASS_BUTTON_OFF = 'off',
+        eventTarget = new EventTarget(),
+        seedValue = document.getElementById('seed'),
+        randomSeedButton = document.getElementById('randomSeed'),
+        goButton = document.getElementById('go'),
+        erodeButton = document.getElementById('erode'),
+        riversButton = document.getElementById('rivers'),
+        contourButton = document.getElementById('contour'),
+        waveButton = document.getElementById('wave'),
+        smoothButton = document.getElementById('smooth');
 
-    const view = {
-        init() {
+    function trigger(eventName, eventData) {
+        console.debug(`=== EVENT ${name + ' ' || ''}: ${eventName} ${JSON.stringify(eventData) || ''}`);
+        const event = new Event(eventName);
+        event.data = eventData;
+        eventTarget.dispatchEvent(event);
+    }
 
+    randomSeedButton.onclick = () => trigger(EVENT_RND_CLICK);
+    goButton.onclick = () => trigger(EVENT_GO_CLICK);
+    erodeButton.onclick = () => trigger(EVENT_ERODE_CLICK);
+    riversButton.onclick = () => trigger(EVENT_RIVERS_CLICK);
+    contourButton.onclick = () => trigger(EVENT_CONTOURS_CLICK);
+    waveButton.onclick = () => trigger(EVENT_WAVES_CLICK);
+    smoothButton.onclick = () => trigger(EVENT_SMOOTH_CLICK);
+
+    function addConditionalHandler(eventName, fnCondition){
+        return {
+            then(handler) {
+                eventTarget.addEventListener(eventName, event => {
+                    if (fnCondition()) {
+                        handler(event);
+                    }
+                });
+            }
+        };
+    }
+    return {
+        setSeed(newSeed) {
+            seedValue.value = newSeed;
         },
-        onErodeClick(handler) {
-            elErodeButton.onclick = handler;
+        toggleRivers(enabled) {
+            riversButton.classList.toggle(CSS_CLASS_BUTTON_OFF, !enabled);
         },
-        onRiversClick(handler) {
-            elRiversButton.onclick = handler;
+        toggleContours(enabled) {
+            contourButton.classList.toggle(CSS_CLASS_BUTTON_OFF, !enabled);
         },
-        onContourClick(handler) {
-            elContourButton.onclick = handler;
+        toggleWaves(enabled) {
+            waveButton.classList.toggle(CSS_CLASS_BUTTON_OFF, !enabled);
         },
-        onSmoothClick(handler) {
-            elSmoothButton.onclick = handler;
-        },
-        onWaveClick(handler) {
-            elWaveButton.onclick = handler;
-        },
-        getSeed() {
-            return elSeed.value;
-        },
-        setSeed(seed) {
-            elSeed.value = seed;
-        },
-        render(model) {
-            renderer.renderLandscape(model.elevation);
-            renderer.renderErosionPaths(model.erosionPaths);
-            renderer.renderContours(model.contours);
-            renderer.renderWaves(model.waves);
-            renderer.renderRivers(model.rivers);
+        on(eventName) {
+            return {
+                then(handler) {
+                    eventTarget.addEventListener(eventName, handler);
+                },
+                ifWorking() {
+                    return addConditionalHandler(eventName, () => model.working);
+                },
+                ifIdle() {
+                    return addConditionalHandler(eventName, () => !model.working);
+                }
+            };
         }
     };
-
-    return view;
 }

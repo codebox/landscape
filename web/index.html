@@ -10,25 +10,21 @@
     <div id="container">
         <canvas id="canvas"></canvas>
         <div id="controls">
+            <div id="seedRow">
+                <input type="text" id="seed" />
+                <button id="randomSeed">RND</button>
+                <button id="go">GO</button>
+            </div>
             <button id="erode">Erode</button>
-            <button id="rivers">Rivers</button>
-            <button id="contour">Contour</button>
-            <button id="wave">Waves</button>
             <button id="smooth">Smooth</button>
-            <label for="seed">Seed:</label>
-            <input type="text" id="seed"/>
+            <button id="rivers">Rivers</button>
+            <button id="contour">Contours</button>
+            <button id="wave">Waves</button>
         </div>
     </div>
-    <script src="js/config.js"></script>
-    <script src="js/util.js"></script>
-    <script src="js/canvas.js"></script>
+    <script src="js/stateMachine.js"></script>
     <script src="js/model.js"></script>
     <script src="js/view.js"></script>
-    <script src="js/mapRenderer.js"></script>
-    <script src="js/erosion.js"></script>
-    <script src="js/contours.js"></script>
-    <script src="js/waves.js"></script>
-    <script src="js/smoothing.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
