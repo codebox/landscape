@@ -4,7 +4,8 @@ const EVENT_RND_CLICK = 'rndClick',
     EVENT_RIVERS_CLICK = 'riversClick',
     EVENT_CONTOURS_CLICK = 'contourClick',
     EVENT_WAVES_CLICK = 'wavesClick',
-    EVENT_SMOOTH_CLICK = 'smoothClick';
+    EVENT_SMOOTH_CLICK = 'smoothClick',
+    EVENT_SEED_CHANGED = 'seedChanged';
 
 function buildView(model) {
     "use strict";
@@ -38,6 +39,7 @@ function buildView(model) {
     elContourButton.onclick = () => trigger(EVENT_CONTOURS_CLICK);
     elWaveButton.onclick = () => trigger(EVENT_WAVES_CLICK);
     elSmoothButton.onclick = () => trigger(EVENT_SMOOTH_CLICK);
+    elSeedValue.oninput = () => setSeedAndTriggerEvent(elSeedValue.value);
 
     function addConditionalHandler(eventName, fnCondition){
         return {
@@ -50,9 +52,13 @@ function buildView(model) {
             }
         };
     }
+
+    function setSeedAndTriggerEvent(newSeed) {
+        trigger(EVENT_SEED_CHANGED, elSeedValue.value = Number(newSeed));
+    }
     return {
         setSeed(newSeed) {
-            elSeedValue.value = newSeed;
+            setSeedAndTriggerEvent(newSeed);
         },
         setDisabled() {
             elControls.classList.add(CSS_CLASS_BUTTON_DISABLED);

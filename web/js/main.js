@@ -34,5 +34,9 @@ window.onload = () => {
             view.setStatus('');
             view.render(model);
         };
-    })
+    });
+
+    view.on(EVENT_SEED_CHANGED).ifIdle().then(event => {
+        model.seed = event.data;
+    });
 };

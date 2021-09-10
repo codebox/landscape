@@ -1,7 +1,7 @@
 function buildModel() {
     "use strict";
     return {
-        seed: 123,
+        seed: 0,
         working: false,
         riversEnabled: true,
         contoursEnabled: true,
