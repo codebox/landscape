@@ -19,7 +19,8 @@ function buildView(model) {
         elRiversButton = document.getElementById('rivers'),
         elContourButton = document.getElementById('contour'),
         elWaveButton = document.getElementById('wave'),
-        elSmoothButton = document.getElementById('smooth');
+        elSmoothButton = document.getElementById('smooth'),
+        elStatus = document.getElementById('status');
 
     function trigger(eventName, eventData) {
         console.debug(`=== EVENT ${name + ' ' || ''}: ${eventName} ${JSON.stringify(eventData) || ''}`);
@@ -67,6 +68,9 @@ function buildView(model) {
         },
         toggleWaves(enabled) {
             elWaveButton.classList.toggle(CSS_CLASS_BUTTON_OFF, !enabled);
+        },
+        setStatus(status) {
+            elStatus.innerText = status;
         },
         on(eventName) {
             return {

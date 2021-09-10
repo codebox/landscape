@@ -51,4 +51,9 @@ html,body {
 #go {
     min-width: 50px;
 }
-
+#status {
+    border: 1px solid lightgray;
+    min-height: 40px;
+    width: 100%;
+    text-align: center;
+}

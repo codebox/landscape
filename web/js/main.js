@@ -22,9 +22,11 @@ window.onload = () => {
     view.on(EVENT_GO_CLICK).then(() => {
         view.setDisabled();
         model.working = true;
+        view.setStatus('working');
         setTimeout(() => {
             model.working = false;
             view.setEnabled()
+            view.setStatus('');
         }, 3000)
     })
 };
