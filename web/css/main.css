@@ -38,6 +38,11 @@ html,body {
 #controls button.off {
     background-color: grey;
 }
+#controls.disabled button {
+    color: lightgray;
+    border-color: lightgray;
+    cursor: default;
+}
 #seedRow {
     display: flex;
     flex-direction: row;

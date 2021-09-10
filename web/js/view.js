@@ -6,18 +6,20 @@ const EVENT_RND_CLICK = 'rndClick',
     EVENT_WAVES_CLICK = 'wavesClick',
     EVENT_SMOOTH_CLICK = 'smoothClick';
 
-function buildView() {
+function buildView(model) {
     "use strict";
     const CSS_CLASS_BUTTON_OFF = 'off',
+        CSS_CLASS_BUTTON_DISABLED = 'disabled',
         eventTarget = new EventTarget(),
-        seedValue = document.getElementById('seed'),
-        randomSeedButton = document.getElementById('randomSeed'),
-        goButton = document.getElementById('go'),
-        erodeButton = document.getElementById('erode'),
-        riversButton = document.getElementById('rivers'),
-        contourButton = document.getElementById('contour'),
-        waveButton = document.getElementById('wave'),
-        smoothButton = document.getElementById('smooth');
+        elControls = document.getElementById('controls'),
+        elSeedValue = document.getElementById('seed'),
+        elRandomSeedButton = document.getElementById('randomSeed'),
+        elGoButton = document.getElementById('go'),
+        elErodeButton = document.getElementById('erode'),
+        elRiversButton = document.getElementById('rivers'),
+        elContourButton = document.getElementById('contour'),
+        elWaveButton = document.getElementById('wave'),
+        elSmoothButton = document.getElementById('smooth');
 
     function trigger(eventName, eventData) {
         console.debug(`=== EVENT ${name + ' ' || ''}: ${eventName} ${JSON.stringify(eventData) || ''}`);
@@ -26,13 +28,13 @@ function buildView() {
         eventTarget.dispatchEvent(event);
     }
 
-    randomSeedButton.onclick = () => trigger(EVENT_RND_CLICK);
-    goButton.onclick = () => trigger(EVENT_GO_CLICK);
-    erodeButton.onclick = () => trigger(EVENT_ERODE_CLICK);
-    riversButton.onclick = () => trigger(EVENT_RIVERS_CLICK);
-    contourButton.onclick = () => trigger(EVENT_CONTOURS_CLICK);
-    waveButton.onclick = () => trigger(EVENT_WAVES_CLICK);
-    smoothButton.onclick = () => trigger(EVENT_SMOOTH_CLICK);
+    elRandomSeedButton.onclick = () => trigger(EVENT_RND_CLICK);
+    elGoButton.onclick = () => trigger(EVENT_GO_CLICK);
+    elErodeButton.onclick = () => trigger(EVENT_ERODE_CLICK);
+    elRiversButton.onclick = () => trigger(EVENT_RIVERS_CLICK);
+    elContourButton.onclick = () => trigger(EVENT_CONTOURS_CLICK);
+    elWaveButton.onclick = () => trigger(EVENT_WAVES_CLICK);
+    elSmoothButton.onclick = () => trigger(EVENT_SMOOTH_CLICK);
 
     function addConditionalHandler(eventName, fnCondition){
         return {
@@ -47,16 +49,24 @@ function buildView() {
     }
     return {
         setSeed(newSeed) {
-            seedValue.value = newSeed;
+            elSeedValue.value = newSeed;
+        },
+        setDisabled() {
+            elControls.classList.add(CSS_CLASS_BUTTON_DISABLED);
+            elSeedValue.disabled = true;
+        },
+        setEnabled() {
+            elControls.classList.remove(CSS_CLASS_BUTTON_DISABLED);
+            elSeedValue.disabled = false;
         },
         toggleRivers(enabled) {
-            riversButton.classList.toggle(CSS_CLASS_BUTTON_OFF, !enabled);
+            elRiversButton.classList.toggle(CSS_CLASS_BUTTON_OFF, !enabled);
         },
         toggleContours(enabled) {
-            contourButton.classList.toggle(CSS_CLASS_BUTTON_OFF, !enabled);
+            elContourButton.classList.toggle(CSS_CLASS_BUTTON_OFF, !enabled);
         },
         toggleWaves(enabled) {
-            waveButton.classList.toggle(CSS_CLASS_BUTTON_OFF, !enabled);
+            elWaveButton.classList.toggle(CSS_CLASS_BUTTON_OFF, !enabled);
         },
         on(eventName) {
             return {
