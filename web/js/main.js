@@ -55,6 +55,22 @@ window.onload = () => {
         };
     });
 
+    view.on(EVENT_SMOOTH_CLICK).ifIdle().then(() => {
+        view.setDisabled();
+        model.working = true;
+        view.setStatus('Smoothing terrain...');
+
+        const smoothingWorker = new Worker('js/workers/smoothing.js');
+        smoothingWorker.postMessage(model.elevation);
+        smoothingWorker.onmessage = event => {
+            model.elevation = event.data;
+            view.setEnabled();
+            model.working = false;
+            view.setStatus('');
+            view.render(model);
+        };
+    });
+
     view.on(EVENT_SEED_CHANGED).ifIdle().then(event => {
         model.seed = event.data;
         model.elevation = model.contours = model.waves = model.rivers = model.erosionPaths = null;
