@@ -19,14 +19,19 @@ window.onload = () => {
         view.toggleWaves(model.wavesEnabled = !model.wavesEnabled);
     });
 
-    view.on(EVENT_GO_CLICK).then(() => {
+    view.on(EVENT_GO_CLICK).ifIdle().then(() => {
         view.setDisabled();
         model.working = true;
         view.setStatus('working');
-        setTimeout(() => {
+
+        const landscapeWorker = new Worker('js/workers/landscape.js');
+        landscapeWorker.postMessage(model.seed);
+        landscapeWorker.onmessage = event => {
+            console.log(event.data);
+            view.setEnabled();
             model.working = false;
-            view.setEnabled()
             view.setStatus('');
-        }, 3000)
+            view.render(model);
+        };
     })
 };

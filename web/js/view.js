@@ -72,6 +72,7 @@ function buildView(model) {
         setStatus(status) {
             elStatus.innerText = status;
         },
+        render()
         on(eventName) {
             return {
                 then(handler) {
