@@ -82,6 +82,15 @@ function buildView(model) {
         },
         render() {
             mapRenderer.renderLandscape(model.elevation);
+            if (model.riversEnabled && model.rivers) {
+                mapRenderer.renderRivers();
+            }
+            if (model.contoursEnabled && model.contours) {
+                mapRenderer.renderContours();
+            }
+            if (model.wavesEnabled && model.waves) {
+                mapRenderer.renderWaves();
+            }
         },
         on(eventName) {
             return {

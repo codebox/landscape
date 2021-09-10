@@ -22,12 +22,31 @@ window.onload = () => {
     view.on(EVENT_GO_CLICK).ifIdle().then(() => {
         view.setDisabled();
         model.working = true;
-        view.setStatus('working');
+        view.setStatus('Building Landscape...');
 
         const landscapeWorker = new Worker('js/workers/landscape.js');
         landscapeWorker.postMessage(model.seed);
         landscapeWorker.onmessage = event => {
-            console.log(event.data);
+            model.elevation = event.data;
+            view.setEnabled();
+            model.working = false;
+            view.setStatus('');
+            view.render(model);
+        };
+    });
+
+    view.on(EVENT_ERODE_CLICK).ifIdle().then(() => {
+        view.setDisabled();
+        model.working = true;
+        view.setStatus('Calculating erosion...');
+
+        const erosionWorker = new Worker('js/workers/erosion.js');
+        erosionWorker.postMessage({
+            seed: model.seed,
+            elevation: model.elevation,
+            cycles: 10000
+        });
+        erosionWorker.onmessage = event => {
             model.elevation = event.data;
             view.setEnabled();
             model.working = false;
@@ -38,5 +57,6 @@ window.onload = () => {
 
     view.on(EVENT_SEED_CHANGED).ifIdle().then(event => {
         model.seed = event.data;
+        model.elevation = model.contours = model.waves = model.rivers = model.erosionPaths = null;
     });
 };
