@@ -28,6 +28,7 @@ window.onload = () => {
         landscapeWorker.postMessage(model.seed);
         landscapeWorker.onmessage = event => {
             console.log(event.data);
+            model.elevation = event.data;
             view.setEnabled();
             model.working = false;
             view.setStatus('');

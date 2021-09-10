@@ -20,7 +20,9 @@ function buildView(model) {
         elContourButton = document.getElementById('contour'),
         elWaveButton = document.getElementById('wave'),
         elSmoothButton = document.getElementById('smooth'),
-        elStatus = document.getElementById('status');
+        elStatus = document.getElementById('status'),
+        elCanvas = document.getElementById('canvas'),
+        mapRenderer = buildRenderer(elCanvas).twoD();
 
     function trigger(eventName, eventData) {
         console.debug(`=== EVENT ${name + ' ' || ''}: ${eventName} ${JSON.stringify(eventData) || ''}`);
@@ -72,7 +74,9 @@ function buildView(model) {
         setStatus(status) {
             elStatus.innerText = status;
         },
-        render()
+        render() {
+            mapRenderer.renderLandscape(model.elevation);
+        },
         on(eventName) {
             return {
                 then(handler) {
