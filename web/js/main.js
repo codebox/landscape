@@ -38,6 +38,24 @@ window.onload = () => {
 
     view.on(EVENT_CONTOURS_CLICK).ifIdle().then(() => {
         view.toggleContours(model.contoursEnabled = !model.contoursEnabled);
+        if (model.contoursEnabled && !model.contours) {
+            view.setDisabled();
+            model.working = true;
+            view.setStatus('Calculating contours...');
+
+            const contourWorker = new Worker('js/workers/contours.js');
+            contourWorker.postMessage(model.elevation);
+            contourWorker.onmessage = event => {
+                model.contours = event.data;
+                console.log(model.contours)
+                view.setEnabled();
+                model.working = false;
+                view.setStatus('');
+                view.render(model);
+            };
+        } else {
+            view.render(model);
+        }
     });
 
     view.on(EVENT_WAVES_CLICK).ifIdle().then(() => {
