@@ -86,13 +86,13 @@ function buildView(model) {
         render() {
             mapRenderer.renderLandscape(model.elevation);
             if (model.riversEnabled && model.rivers) {
-                mapRenderer.renderRivers();
+                mapRenderer.renderRivers(model.rivers);
             }
             if (model.contoursEnabled && model.contours) {
-                mapRenderer.renderContours();
+                mapRenderer.renderContours(model.contours);
             }
             if (model.wavesEnabled && model.waves) {
-                mapRenderer.renderWaves();
+                mapRenderer.renderWaves(model.waves);
             }
         },
         on(eventName) {

@@ -9,6 +9,31 @@ window.onload = () => {
 
     view.on(EVENT_RIVERS_CLICK).ifIdle().then(() => {
         view.toggleRivers(model.riversEnabled = !model.riversEnabled);
+
+        if (model.riversEnabled && !model.rivers) {
+            view.setDisabled();
+            model.working = true;
+            view.setStatus('Forming rivers...');
+
+            const riverWorker = new Worker('js/workers/erosion.js');
+            riverWorker.postMessage({
+                seed: model.seed,
+                elevation: model.elevation,
+                cycles: 10000,
+                size: model.canvasSize,
+                rivers: true
+            });
+            riverWorker.onmessage = event => {
+                model.rivers = event.data;
+                console.log(model.rivers)
+                view.setEnabled();
+                model.working = false;
+                view.setStatus('');
+                view.render(model);
+            };
+        } else {
+            view.render(model);
+        }
     });
 
     view.on(EVENT_CONTOURS_CLICK).ifIdle().then(() => {
@@ -53,7 +78,8 @@ window.onload = () => {
         erosionWorker.postMessage({
             seed: model.seed,
             elevation: model.elevation,
-            cycles: 10000
+            cycles: 10000,
+            size: model.canvasSize
         });
         erosionWorker.onmessage = event => {
             model.elevation = event.data;

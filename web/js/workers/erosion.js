@@ -1,7 +1,7 @@
 importScripts('../util.js', '../config.js');
 
 self.addEventListener('message', event => {
-    const {elevation, seed, cycles} = event.data;
+    const {elevation, seed, cycles, size, rivers} = event.data;
 
     const params = config.erosion,
         rnd = randomFromSeed(seed);
@@ -40,7 +40,7 @@ self.addEventListener('message', event => {
         return h_y1 * v + h_y0 * (1 - v);
     }
 
-    function buildDroplet(x=rnd() * (config.mapWidth - 1), y=rnd() * (config.mapHeight - 1)) {
+    function buildDroplet(x=rnd() * (size - 1), y=rnd() * (size - 1)) {
         return {
             x,
             y,
@@ -87,7 +87,7 @@ self.addEventListener('message', event => {
     }
 
     function dropIsOnMap(drop) {
-        return drop.x >= 0 && drop.x < (config.mapWidth - 1) && drop.y >= 0 && drop.y < (config.mapHeight - 1);
+        return drop.x >= 0 && drop.x < (size - 1) && drop.y >= 0 && drop.y < (size - 1);
     }
 
     function depositSediment(grid, drop, deposit) {
@@ -105,9 +105,9 @@ self.addEventListener('message', event => {
             return;
         }
         const startX = Math.max(0, drop.prevX - params.erosionRadius),
-            endX = Math.min(config.mapWidth - 1, drop.prevX + params.erosionRadius),
+            endX = Math.min(size - 1, drop.prevX + params.erosionRadius),
             startY = Math.max(0, drop.prevY - params.erosionRadius),
-            endY = Math.min(config.mapHeight - 1, drop.prevY + params.erosionRadius),
+            endY = Math.min(size - 1, drop.prevY + params.erosionRadius),
             erosionAmounts = [];
 
         for (let x=startX; x<=endX; x++) {
@@ -182,34 +182,81 @@ self.addEventListener('message', event => {
         return path;
     }
 
-    const grid = buildGrid(elevation),
-        paths = [];
+    function erode(elevation){
+        "use strict";
+        const grid = buildGrid(elevation),
+            paths = [];
 
-    let i=0;
-    while (i++ < cycles) {
-        const drop = buildDroplet();
-        const path = simulateWater(grid, drop,
-            carryCapacity => {
-                const deposit = (drop.sediment - carryCapacity) * params.deposition;
-                depositSediment(grid, drop, deposit);
-            },
-            (carryCapacity, heightDecrease) => {
-                const erosion = Math.min((carryCapacity - drop.sediment) * params.erosion, heightDecrease);
-                erodeSurrounding(grid, drop, erosion);
-            },
-            () => {
-                depositSediment(grid, drop, drop.sediment);
-                return true;
-            },
-            heightDecrease => {
-                depositSediment(grid, drop, -heightDecrease);
-                drop.speed = 0;
-            },
-            () => {}
-        );
-        paths.push(path);
+        let i=0;
+        while (i++ < cycles) {
+            const drop = buildDroplet();
+            const path = simulateWater(grid, drop,
+                carryCapacity => {
+                    const deposit = (drop.sediment - carryCapacity) * params.deposition;
+                    depositSediment(grid, drop, deposit);
+                },
+                (carryCapacity, heightDecrease) => {
+                    const erosion = Math.min((carryCapacity - drop.sediment) * params.erosion, heightDecrease);
+                    erodeSurrounding(grid, drop, erosion);
+                },
+                () => {
+                    depositSediment(grid, drop, drop.sediment);
+                    return true;
+                },
+                heightDecrease => {
+                    depositSediment(grid, drop, -heightDecrease);
+                    drop.speed = 0;
+                },
+                () => {}
+            );
+            paths.push(path);
+        }
+
+        self.postMessage(grid.toArray());
+    }
+    function findRivers(elevation) {
+        "use strict";
+        const dropCounters = [],
+            grid = buildGrid(elevation);
+
+        grid.forEach((x,y,_) => {
+            const drop = buildDroplet(x, y);
+            simulateWater(
+                grid, drop,
+                () => {},
+                () => {},
+                () => drop.speed = 0,
+                () => drop.speed = 0,
+                () => {
+                    const dropBoxX = Math.round(drop.x),
+                        dropBoxY = Math.round(drop.y);
+                    if (!dropCounters[dropBoxY]) {
+                        dropCounters[dropBoxY] = [];
+                    }
+                    if (!dropCounters[dropBoxY][dropBoxX]) {
+                        dropCounters[dropBoxY][dropBoxX] = 0;
+                    }
+                    dropCounters[dropBoxY][dropBoxX]++;
+                }
+            )
+        });
+
+        const riverPoints = [];
+
+        grid.forEach((x,y,el) => {
+            if (dropCounters[y] && (dropCounters[y][x] > 0)) {
+                riverPoints.push({x,y,el,fill:dropCounters[y][x]});
+            }
+        });
+
+        self.postMessage(riverPoints);
     }
 
-    self.postMessage(grid.toArray());
+    if (rivers) {
+        findRivers(elevation);
+    } else {
+        erode(elevation);
+    }
+
 
 }, false);
