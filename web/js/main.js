@@ -47,7 +47,6 @@ window.onload = () => {
             contourWorker.postMessage(model.elevation);
             contourWorker.onmessage = event => {
                 model.contours = event.data;
-                console.log(model.contours)
                 view.setEnabled();
                 model.working = false;
                 view.setStatus('');
@@ -60,6 +59,23 @@ window.onload = () => {
 
     view.on(EVENT_WAVES_CLICK).ifIdle().then(() => {
         view.toggleWaves(model.wavesEnabled = !model.wavesEnabled);
+        if (model.wavesEnabled && !model.waves) {
+            view.setDisabled();
+            model.working = true;
+            view.setStatus('Calculating waves...');
+
+            const waveWorker = new Worker('js/workers/waves.js');
+            waveWorker.postMessage(model.elevation);
+            waveWorker.onmessage = event => {
+                model.waves = event.data;
+                view.setEnabled();
+                model.working = false;
+                view.setStatus('');
+                view.render(model);
+            };
+        } else {
+            view.render(model);
+        }
     });
 
     view.on(EVENT_GO_CLICK).ifIdle().then(() => {
