@@ -96,6 +96,7 @@ window.onload = () => {
             //     row.forEach((val,x) => event.data[y][x] = (x%50===0 && y%50===0)? 100: 0)
             // })
             model.elevation = event.data;
+            model.rivers = model.contours = model.waves = null;
             view.setEnabled();
             model.working = false;
             view.setStatus('');
@@ -117,6 +118,7 @@ window.onload = () => {
         });
         erosionWorker.onmessage = event => {
             model.elevation = event.data;
+            model.rivers = model.contours = model.waves = null;
             view.setEnabled();
             model.working = false;
             view.setStatus('');
@@ -133,6 +135,7 @@ window.onload = () => {
         smoothingWorker.postMessage(model.elevation);
         smoothingWorker.onmessage = event => {
             model.elevation = event.data;
+            model.rivers = model.contours = model.waves = null;
             view.setEnabled();
             model.working = false;
             view.setStatus('');
