@@ -22,11 +22,20 @@ window.onload = () => {
     view.on(EVENT_GO_CLICK).ifIdle().then(() => {
         view.setDisabled();
         model.working = true;
+        const canvasDimensions = view.getCanvasSize();
+        model.canvasSize = Math.min(canvasDimensions.height, canvasDimensions.width);
         view.setStatus('Building Landscape...');
 
         const landscapeWorker = new Worker('js/workers/landscape.js');
-        landscapeWorker.postMessage(model.seed);
+        landscapeWorker.postMessage({
+            seed: model.seed,
+            size: model.canvasSize
+        });
         landscapeWorker.onmessage = event => {
+            console.log(event.data)
+            // event.data.forEach((row,y) => {
+            //     row.forEach((val,x) => event.data[y][x] = (x%50===0 && y%50===0)? 100: 0)
+            // })
             model.elevation = event.data;
             view.setEnabled();
             model.working = false;

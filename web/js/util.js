@@ -96,12 +96,12 @@ function buildPerlin(rnd, width, height) {
 function buildPerlinEnsemble(rnd, size, levels, weightDecay) {
     const zoomBase = Math.pow(size, 1/(levels-1)),
         noiseParams = new Array(levels).fill().map((_,i) => {
-        "use strict";
-        return {
-            weight: Math.pow(weightDecay, -i),
-            zoom: Math.pow(zoomBase, i)
-        }
-    });
+            "use strict";
+            return {
+                weight: Math.pow(weightDecay, -i),
+                zoom: Math.pow(zoomBase, i)
+            }
+        });
 
     const weightTotal = [...noiseParams].reduce((a,c) => a + c.weight, 0),
         fns = [...noiseParams].map(p => {

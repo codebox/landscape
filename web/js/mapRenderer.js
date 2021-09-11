@@ -1,7 +1,7 @@
 function buildRenderer(elCanvas) {
     "use strict";
 
-    const canvas = buildCanvas(elCanvas, config.mapWidth, config.mapHeight);
+    const canvas = buildCanvas(elCanvas);
 
     function buildRangeShifter(minIn, maxIn, minOut, maxOut) {
         return v => {

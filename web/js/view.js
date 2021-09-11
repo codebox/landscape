@@ -80,6 +80,9 @@ function buildView(model) {
         setStatus(status) {
             elStatus.innerText = status;
         },
+        getCanvasSize() {
+            return elCanvas.getBoundingClientRect();
+        },
         render() {
             mapRenderer.renderLandscape(model.elevation);
             if (model.riversEnabled && model.rivers) {

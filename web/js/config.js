@@ -1,7 +1,5 @@
 const config = Object.freeze({
     renderScale: 1,
-    mapWidth: 500,
-    mapHeight: 500,
     seaLevel: -0.1,
     snowLevel: 0.1,
     erosionCycles: 10000,

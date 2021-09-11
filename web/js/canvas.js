@@ -1,17 +1,16 @@
-function buildCanvas(elCanvas, width, height) {
+function buildCanvas(elCanvas) {
     "use strict";
     const ctx = elCanvas.getContext('2d'),
-        scale = config.renderScale;
+        scale = config.renderScale,
+        {width, height} = elCanvas.getBoundingClientRect();
 
-    ctx.canvas.width = elCanvas.clientWidth;
-    ctx.canvas.height = elCanvas.clientHeight;
-
-
+    ctx.canvas.width = elCanvas.width = width;
+    ctx.canvas.height = elCanvas.height = height;
 
     const canvas = {
         clear() {
             ctx.fillStyle = "white";
-            canvas.drawRectangle(0, 0, elCanvas.width, elCanvas.height);
+            canvas.drawRectangle(0, 0, width, height);
         },
         drawRectangle(x, y, w, h, colour) {
             ctx.fillStyle = colour;
