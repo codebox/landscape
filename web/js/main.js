@@ -3,8 +3,25 @@ window.onload = () => {
     const model = buildModel(),
         view = buildView(model);
 
+    view.toggleRivers(model.riversEnabled);
+    view.toggleContours(model.contoursEnabled);
+    view.toggleWaves(model.wavesEnabled);
+
+    function renderModel() {
+        view.setDisabled();
+        model.working = true;
+        view.setStatus('Rendering...');
+
+        setTimeout(() => {
+            view.render(model);
+            view.setEnabled();
+            model.working = false;
+            view.setStatus('');
+        }, 0);
+    }
+
     view.on(EVENT_RND_CLICK).ifIdle().then(() => {
-        view.setSeed(Date.now());
+        view.setSeed(Math.floor(Math.random() * 100000000));
     });
 
     view.on(EVENT_RIVERS_CLICK).ifIdle().then(() => {
@@ -25,14 +42,10 @@ window.onload = () => {
             });
             riverWorker.onmessage = event => {
                 model.rivers = event.data;
-                console.log(model.rivers)
-                view.setEnabled();
-                model.working = false;
-                view.setStatus('');
-                view.render(model);
+                renderModel();
             };
         } else {
-            view.render(model);
+            renderModel();
         }
     });
 
@@ -47,13 +60,10 @@ window.onload = () => {
             contourWorker.postMessage(model.elevation);
             contourWorker.onmessage = event => {
                 model.contours = event.data;
-                view.setEnabled();
-                model.working = false;
-                view.setStatus('');
-                view.render(model);
+                renderModel();
             };
         } else {
-            view.render(model);
+            renderModel();
         }
     });
 
@@ -68,13 +78,10 @@ window.onload = () => {
             waveWorker.postMessage(model.elevation);
             waveWorker.onmessage = event => {
                 model.waves = event.data;
-                view.setEnabled();
-                model.working = false;
-                view.setStatus('');
-                view.render(model);
+                renderModel();
             };
         } else {
-            view.render(model);
+            renderModel();
         }
     });
 
@@ -91,16 +98,9 @@ window.onload = () => {
             size: model.canvasSize
         });
         landscapeWorker.onmessage = event => {
-            console.log(event.data)
-            // event.data.forEach((row,y) => {
-            //     row.forEach((val,x) => event.data[y][x] = (x%50===0 && y%50===0)? 100: 0)
-            // })
             model.elevation = event.data;
             model.rivers = model.contours = model.waves = null;
-            view.setEnabled();
-            model.working = false;
-            view.setStatus('');
-            view.render(model);
+            renderModel();
         };
     });
 
@@ -119,10 +119,7 @@ window.onload = () => {
         erosionWorker.onmessage = event => {
             model.elevation = event.data;
             model.rivers = model.contours = model.waves = null;
-            view.setEnabled();
-            model.working = false;
-            view.setStatus('');
-            view.render(model);
+            renderModel();
         };
     });
 
@@ -136,10 +133,7 @@ window.onload = () => {
         smoothingWorker.onmessage = event => {
             model.elevation = event.data;
             model.rivers = model.contours = model.waves = null;
-            view.setEnabled();
-            model.working = false;
-            view.setStatus('');
-            view.render(model);
+            renderModel();
         };
     });
 
@@ -147,4 +141,9 @@ window.onload = () => {
         model.seed = event.data;
         model.elevation = model.contours = model.waves = model.rivers = model.erosionPaths = null;
     });
+
+    view.on(EVENT_DOWNLOAD_CLICK).ifIdle().then(event => {
+        view.downloadImageAs(model.seed);
+    });
+
 };

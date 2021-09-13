@@ -5,6 +5,7 @@ const EVENT_RND_CLICK = 'rndClick',
     EVENT_CONTOURS_CLICK = 'contourClick',
     EVENT_WAVES_CLICK = 'wavesClick',
     EVENT_SMOOTH_CLICK = 'smoothClick',
+    EVENT_DOWNLOAD_CLICK = 'downloadClick',
     EVENT_SEED_CHANGED = 'seedChanged';
 
 function buildView(model) {
@@ -23,6 +24,7 @@ function buildView(model) {
         elSmoothButton = document.getElementById('smooth'),
         elStatus = document.getElementById('status'),
         elCanvas = document.getElementById('canvas'),
+        elDownload = document.getElementById('download'),
         mapRenderer = buildRenderer(elCanvas).twoD();
 
     function trigger(eventName, eventData) {
@@ -39,6 +41,7 @@ function buildView(model) {
     elContourButton.onclick = () => trigger(EVENT_CONTOURS_CLICK);
     elWaveButton.onclick = () => trigger(EVENT_WAVES_CLICK);
     elSmoothButton.onclick = () => trigger(EVENT_SMOOTH_CLICK);
+    elDownload.onclick = () => trigger(EVENT_DOWNLOAD_CLICK);
     elSeedValue.oninput = () => setSeedAndTriggerEvent(elSeedValue.value);
 
     function addConditionalHandler(eventName, fnCondition){
@@ -82,6 +85,12 @@ function buildView(model) {
         },
         getCanvasSize() {
             return elCanvas.getBoundingClientRect();
+        },
+        downloadImageAs(seed) {
+            const link = document.createElement('a');
+            link.download = `${seed}.png`;
+            link.href = elCanvas.toDataURL()
+            link.click();
         },
         render() {
             mapRenderer.renderLandscape(model.elevation);

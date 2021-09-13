@@ -3,8 +3,8 @@ function buildModel() {
     return {
         seed: 0,
         working: false,
-        riversEnabled: true,
-        contoursEnabled: true,
-        wavesEnabled: true
+        riversEnabled: false,
+        contoursEnabled: false,
+        wavesEnabled: false
     };
 }
