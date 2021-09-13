@@ -109,11 +109,8 @@ function buildView(model) {
                 then(handler) {
                     eventTarget.addEventListener(eventName, handler);
                 },
-                ifWorking() {
-                    return addConditionalHandler(eventName, () => model.working);
-                },
-                ifIdle() {
-                    return addConditionalHandler(eventName, () => !model.working);
+                ifStateIs(...states) {
+                    return addConditionalHandler(eventName, () => states.includes(model.state));
                 }
             };
         }

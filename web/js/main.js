@@ -9,27 +9,27 @@ window.onload = () => {
 
     function renderModel() {
         view.setDisabled();
-        model.working = true;
+        model.state = STATE_WORKING;
         view.setStatus('Rendering...');
 
         setTimeout(() => {
             view.render(model);
             view.setEnabled();
-            model.working = false;
+            model.state = STATE_IDLE;
             view.setStatus('');
         }, 0);
     }
 
-    view.on(EVENT_RND_CLICK).ifIdle().then(() => {
+    view.on(EVENT_RND_CLICK).ifStateIs(STATE_INIT, STATE_IDLE).then(() => {
         view.setSeed(Math.floor(Math.random() * 100000000));
     });
 
-    view.on(EVENT_RIVERS_CLICK).ifIdle().then(() => {
+    view.on(EVENT_RIVERS_CLICK).ifStateIs(STATE_IDLE).then(() => {
         view.toggleRivers(model.riversEnabled = !model.riversEnabled);
 
         if (model.riversEnabled && !model.rivers) {
             view.setDisabled();
-            model.working = true;
+            model.state = STATE_WORKING;
             view.setStatus('Forming rivers...');
 
             const riverWorker = new Worker('js/workers/erosion.js');
@@ -49,11 +49,11 @@ window.onload = () => {
         }
     });
 
-    view.on(EVENT_CONTOURS_CLICK).ifIdle().then(() => {
+    view.on(EVENT_CONTOURS_CLICK).ifStateIs(STATE_IDLE).then(() => {
         view.toggleContours(model.contoursEnabled = !model.contoursEnabled);
         if (model.contoursEnabled && !model.contours) {
             view.setDisabled();
-            model.working = true;
+            model.state = STATE_WORKING;
             view.setStatus('Calculating contours...');
 
             const contourWorker = new Worker('js/workers/contours.js');
@@ -67,11 +67,11 @@ window.onload = () => {
         }
     });
 
-    view.on(EVENT_WAVES_CLICK).ifIdle().then(() => {
+    view.on(EVENT_WAVES_CLICK).ifStateIs(STATE_IDLE).then(() => {
         view.toggleWaves(model.wavesEnabled = !model.wavesEnabled);
         if (model.wavesEnabled && !model.waves) {
             view.setDisabled();
-            model.working = true;
+            model.state = STATE_WORKING;
             view.setStatus('Calculating waves...');
 
             const waveWorker = new Worker('js/workers/waves.js');
@@ -85,9 +85,9 @@ window.onload = () => {
         }
     });
 
-    view.on(EVENT_GO_CLICK).ifIdle().then(() => {
+    view.on(EVENT_GO_CLICK).ifStateIs(STATE_INIT, STATE_IDLE).then(() => {
         view.setDisabled();
-        model.working = true;
+        model.state = STATE_WORKING;
         const canvasDimensions = view.getCanvasSize();
         model.canvasSize = Math.min(canvasDimensions.height, canvasDimensions.width);
         view.setStatus('Building Landscape...');
@@ -104,9 +104,9 @@ window.onload = () => {
         };
     });
 
-    view.on(EVENT_ERODE_CLICK).ifIdle().then(() => {
+    view.on(EVENT_ERODE_CLICK).ifStateIs(STATE_IDLE).then(() => {
         view.setDisabled();
-        model.working = true;
+        model.state = STATE_WORKING;
         view.setStatus('Calculating erosion...');
 
         const erosionWorker = new Worker('js/workers/erosion.js');
@@ -123,9 +123,9 @@ window.onload = () => {
         };
     });
 
-    view.on(EVENT_SMOOTH_CLICK).ifIdle().then(() => {
+    view.on(EVENT_SMOOTH_CLICK).ifStateIs(STATE_IDLE).then(() => {
         view.setDisabled();
-        model.working = true;
+        model.state = STATE_WORKING;
         view.setStatus('Smoothing terrain...');
 
         const smoothingWorker = new Worker('js/workers/smoothing.js');
@@ -137,12 +137,12 @@ window.onload = () => {
         };
     });
 
-    view.on(EVENT_SEED_CHANGED).ifIdle().then(event => {
+    view.on(EVENT_SEED_CHANGED).ifStateIs(STATE_IDLE).then(event => {
         model.seed = event.data;
         model.elevation = model.contours = model.waves = model.rivers = model.erosionPaths = null;
     });
 
-    view.on(EVENT_DOWNLOAD_CLICK).ifIdle().then(event => {
+    view.on(EVENT_DOWNLOAD_CLICK).ifStateIs(STATE_IDLE).then(event => {
         view.downloadImageAs(model.seed);
     });
 
