@@ -37,7 +37,7 @@ html,body {
     background-color: transparent;
 }
 #controls button.off {
-    background-color: grey;
+    background-color: #ccc;
 }
 #controls.disabled button {
     color: lightgray;
