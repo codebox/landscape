@@ -20,8 +20,11 @@ window.onload = () => {
         }, 0);
     }
 
-    view.on(EVENT_RND_CLICK).ifStateIs(STATE_INIT, STATE_IDLE).then(() => {
+    function setRandomSeed() {
         view.setSeed(Math.floor(Math.random() * 100000000));
+    }
+    view.on(EVENT_RND_CLICK).ifStateIs(STATE_INIT, STATE_IDLE).then(() => {
+        setRandomSeed();
     });
 
     view.on(EVENT_RIVERS_CLICK).ifStateIs(STATE_IDLE).then(() => {
@@ -54,7 +57,7 @@ window.onload = () => {
         if (model.contoursEnabled && !model.contours) {
             view.setDisabled();
             model.state = STATE_WORKING;
-            view.setStatus('Calculating contours...');
+            view.setStatus('Finding contours...');
 
             const contourWorker = new Worker('js/workers/contours.js');
             contourWorker.postMessage(model.elevation);
@@ -72,7 +75,7 @@ window.onload = () => {
         if (model.wavesEnabled && !model.waves) {
             view.setDisabled();
             model.state = STATE_WORKING;
-            view.setStatus('Calculating waves...');
+            view.setStatus('Making waves...');
 
             const waveWorker = new Worker('js/workers/waves.js');
             waveWorker.postMessage(model.elevation);
@@ -99,7 +102,7 @@ window.onload = () => {
         });
         landscapeWorker.onmessage = event => {
             model.elevation = event.data;
-            model.rivers = model.contours = model.waves = null;
+            discardOutdatedState();
             renderModel();
         };
     });
@@ -118,7 +121,7 @@ window.onload = () => {
         });
         erosionWorker.onmessage = event => {
             model.elevation = event.data;
-            model.rivers = model.contours = model.waves = null;
+            discardOutdatedState();
             renderModel();
         };
     });
@@ -132,18 +135,28 @@ window.onload = () => {
         smoothingWorker.postMessage(model.elevation);
         smoothingWorker.onmessage = event => {
             model.elevation = event.data;
-            model.rivers = model.contours = model.waves = null;
+            discardOutdatedState();
             renderModel();
         };
     });
 
-    view.on(EVENT_SEED_CHANGED).ifStateIs(STATE_IDLE).then(event => {
+    function discardOutdatedState() {
+        model.contours = model.waves = model.rivers = null;
+        model.contoursEnabled = model.wavesEnabled = model.riversEnabled = false;
+        view.toggleContours(false);
+        view.toggleWaves(false);
+        view.toggleRivers(false);
+    }
+
+    view.on(EVENT_SEED_CHANGED).ifStateIs(STATE_INIT, STATE_IDLE).then(event => {
         model.seed = event.data;
-        model.elevation = model.contours = model.waves = model.rivers = model.erosionPaths = null;
+        discardOutdatedState();
+        model.elevation = null;
     });
 
     view.on(EVENT_DOWNLOAD_CLICK).ifStateIs(STATE_IDLE).then(event => {
         view.downloadImageAs(model.seed);
     });
 
+    setRandomSeed();
 };

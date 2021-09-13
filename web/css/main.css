@@ -44,6 +44,9 @@ html,body {
     border-color: lightgray;
     cursor: default;
 }
+#controls.disabled #seed {
+    color: lightgray;
+}
 #controls.disabled button.off {
     background-color: #ddd;
 }
@@ -52,8 +55,13 @@ html,body {
     flex-direction: row;
     gap: 2px;
 }
-#go {
+#controls #go {
     min-width: 50px;
+    background-color: red;
+    color: white;
+}
+#controls.disabled #go {
+    background-color: rgba(255,0,0,0.3);
 }
 #status {
     border: 1px solid lightgray;
